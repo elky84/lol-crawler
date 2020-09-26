@@ -1,0 +1,75 @@
+### Notification Get
+
+GET {{host}}/Notification
+
+
+### Notification Create Multi Discord
+
+POST {{host}}/Notification/Multi
+Content-Type: application/json
+
+{
+	"NotificationDatas": [
+        {
+            "Type": "Discord",
+            "Name": "LOL Tracker",
+            "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+            "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+            "Region": "KR"
+		}
+	]
+}
+
+
+### Notification Create Multi Discord (for local debug)
+
+POST {{host}}/Notification/Multi
+Content-Type: application/json
+
+{
+	"NotificationDatas": [
+        {
+			"Type": "Discord",
+            "Name": "LOL Tracker",
+            "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+            "HookUrl": "https://discordapp.com/api/webhooks/757093882747158622/m2mrsgUWaPIzi8K7DjuRTLmUZet5VuNllhKRkekhcx_MSNHSRTdmuSISq67HlwN1ehJ6",
+            "Region": "KR"
+		}
+	]
+}
+
+
+### Notification Create
+
+POST {{host}}/Notification
+Content-Type: application/json
+
+{
+    "Type": "Discord",
+    "Name": "LOL Tracker",
+    "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+    "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+    "Region": "KR"
+}
+
+### Notification Get
+
+GET {{host}}/Notification/5f5a25cc6e6fbaf1a5e7ccca
+
+### Notification Update
+
+PUT {{host}}/Notification/5f5a25cc6e6fbaf1a5e7ccca
+Content-Type: application/json
+
+{
+    "Type": "Discord",
+    "Name": "LOL Tracker",
+    "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+    "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+    "Region": "KR"
+}
+
+### Notification Delete
+
+DELETE {{host}}/Notification/5f5a25cc6e6fbaf1a5e7ccca
+

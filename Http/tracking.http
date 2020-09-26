@@ -1,0 +1,30 @@
+### Tracking Create
+
+POST {{host}}/Tracking
+Content-Type: application/json
+
+{
+    "SummonerName":"elky",
+    "Region": "KR",
+    "Switch": true
+}
+
+### Tracking Get
+
+GET {{host}}/Tracking/5f608e55953dc198528c7e57
+
+### Tracking Update
+
+PUT {{host}}/Tracking/5f608e55953dc198528c7e57
+Content-Type: application/json
+
+{
+    "SummonerName":"elky",
+    "Region": "KR",
+    "Switch": true
+}
+
+### Tracking Delete
+
+DELETE {{host}}/Tracking/5f608e55953dc198528c7e57
+
