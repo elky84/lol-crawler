@@ -39,7 +39,7 @@ namespace LolCrawler.Api
             HttpClient = httpClient;
         }
 
-        public RiotCrawler Create(string apiKey, int maxConcurrentRequests = 20, int retries = 10)
+        public RiotCrawler Create(string apiKey, int maxConcurrentRequests = 5, int retries = 3)
         {
             this.ApiKey = apiKey;
             RiotApi = RiotApi.NewInstance(new RiotApiConfig.Builder(apiKey)
@@ -80,6 +80,11 @@ namespace LolCrawler.Api
                 }
 
                 var summoner = await RiotApi.SummonerV4.GetBySummonerNameAsync(region, summonerName);
+                if (summoner == null)
+                {
+                    return null;
+                }
+
                 return await MongoDbSummoner.UpsertAsync(SummonerFilter(summonerName, region),
                     new Summoner
                     {

@@ -39,7 +39,7 @@ namespace Server.Services
             return new Protocols.Response.Tracking
             {
                 ResultCode = Code.ResultCode.Success,
-                Summoner = summoner.ToProtocol()
+                Summoner = summoner?.ToProtocol()
             };
         }
 
@@ -49,7 +49,7 @@ namespace Server.Services
             return new Protocols.Response.Tracking
             {
                 ResultCode = Code.ResultCode.Success,
-                Summoner = summoner.ToProtocol()
+                Summoner = summoner?.ToProtocol()
             };
         }
 
@@ -59,7 +59,7 @@ namespace Server.Services
             return new Protocols.Response.Tracking
             {
                 ResultCode = Code.ResultCode.Success,
-                Summoner = summoner.ToProtocol()
+                Summoner = summoner?.ToProtocol()
             };
         }
 
@@ -69,7 +69,7 @@ namespace Server.Services
             return new Protocols.Response.Tracking
             {
                 ResultCode = Code.ResultCode.Success,
-                Summoner = summoner.ToProtocol()
+                Summoner = summoner?.ToProtocol()
             };
         }
 
@@ -79,14 +79,14 @@ namespace Server.Services
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
-                    (game) =>
+                    async (game) =>
                     {
                         var participant = game.Participants.FirstOrDefault(x => x.SummonerName == summoner.Name);
                         var champion = _champions[participant.ChampionId];
 
                         var message = $"{summoner.Name}님이 {champion.Name}으로 게임을 시작하셨습니다";
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-                        _ = _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl });
+                        await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl });
                     });
 
                 if (playingGame != null)
