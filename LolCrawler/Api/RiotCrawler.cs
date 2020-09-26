@@ -116,7 +116,8 @@ namespace LolCrawler.Api
                 }
 
                 origin.Tracking = tracking;
-                return await MongoDbSummoner.UpdateAsync(SummonerFilter(summonerName, region), origin);
+                await MongoDbSummoner.UpdateAsync(SummonerFilter(summonerName, region), origin);
+                return origin;
             }
             catch (Exception ex)
             {

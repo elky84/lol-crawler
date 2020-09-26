@@ -4,7 +4,7 @@ POST {{host}}/Tracking
 Content-Type: application/json
 
 {
-    "SummonerName":"ghvdy",
+    "SummonerName":"스펠 미아",
     "Region": "KR",
     "Switch": true
 }
@@ -15,16 +15,19 @@ GET {{host}}/Tracking?summonerName=elky&region=KR
 
 ### Tracking Update
 
-PUT {{host}}/Tracking/5f608e55953dc198528c7e57
+PUT {{host}}/Tracking/elky
 Content-Type: application/json
 
 {
-    "SummonerName":"elky",
     "Region": "KR",
     "Switch": true
 }
 
 ### Tracking Delete
 
-DELETE {{host}}/Tracking/5f608e55953dc198528c7e57
+DELETE {{host}}/Tracking/elky
+Content-Type: application/json
 
+{
+    "Region": "KR"
+}

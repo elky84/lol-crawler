@@ -33,14 +33,16 @@ namespace Server.Controllers
 
 
         [HttpPut("{summonerName}")]
-        public async Task<Protocols.Response.Tracking> Update([FromBody] Protocols.Request.Tracking tracking)
+        public async Task<Protocols.Response.Tracking> Update(string summonerName, [FromBody] Protocols.Request.Tracking tracking)
         {
+            tracking.SummonerName = summonerName;
             return await _trackingService.Update(tracking);
         }
 
         [HttpDelete("{summonerName}")]
-        public async Task<Protocols.Response.Tracking> Delete([FromBody] Protocols.Request.Tracking tracking)
+        public async Task<Protocols.Response.Tracking> Delete(string summonerName, [FromBody] Protocols.Request.Tracking tracking)
         {
+            tracking.SummonerName = summonerName;
             return await _trackingService.Delete(tracking);
         }
     }
