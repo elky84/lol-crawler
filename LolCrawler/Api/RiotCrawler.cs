@@ -27,6 +27,8 @@ namespace LolCrawler.Api
 
         private MongoDbUtil<Models.Champion> MongoDbChampion { get; set; }
 
+        private MongoDbUtil<LeagueEntry> MongoDbLeagueEntry { get; set; }
+
         private HttpClient HttpClient { get; set; }
 
         public RiotCrawler(IMongoDatabase mongoDatabase, HttpClient httpClient)
@@ -35,6 +37,7 @@ namespace LolCrawler.Api
             MongoDbCurrentGame = new MongoDbUtil<CurrentGame>(mongoDatabase);
             MongoDbMatch = new MongoDbUtil<Match>(mongoDatabase);
             MongoDbChampion = new MongoDbUtil<Models.Champion>(mongoDatabase);
+            MongoDbLeagueEntry = new MongoDbUtil<LeagueEntry>(mongoDatabase);
 
             HttpClient = httpClient;
         }
@@ -85,6 +88,8 @@ namespace LolCrawler.Api
                     return null;
                 }
 
+                await RefreshLeagueEntries(summoner.Id, region);
+
                 return await MongoDbSummoner.UpsertAsync(SummonerFilter(summonerName, region),
                     new Summoner
                     {
@@ -103,6 +108,48 @@ namespace LolCrawler.Api
                 Log.Logger.Error(ex.Message);
                 return null;
             }
+        }
+
+        public async Task<List<LeagueEntry>> GetLeagueEntries(Summoner summoner)
+        {
+            if (summoner == null)
+            {
+                return new List<LeagueEntry>();
+            }
+
+            return await MongoDbLeagueEntry.FindAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, summoner.SummonerId));
+        }
+
+        public async Task<bool> DeleteLeagueEntries(Summoner summoner)
+        {
+            if (summoner == null)
+            {
+                return false;
+            }
+
+            return await MongoDbLeagueEntry.RemoveManyAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, summoner.SummonerId));
+        }
+
+        public async Task<List<LeagueEntry>> RefreshLeagueEntries(Summoner summoner)
+        {
+            if (summoner == null)
+            {
+                return new List<LeagueEntry>();
+            }
+
+            return await RefreshLeagueEntries(summoner.SummonerId, Region.Get(summoner.Region));
+        }
+
+        public async Task<List<LeagueEntry>> RefreshLeagueEntries(string summonerId, Region region)
+        {
+            var leagueEntires = (await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId)).Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>()).ToList();
+            foreach (var leagueEntry in leagueEntires)
+            {
+                await MongoDbLeagueEntry.UpsertAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, leagueEntry.SummonerId) &
+                    Builders<LeagueEntry>.Filter.Eq(x => x.QueueType, leagueEntry.QueueType), leagueEntry);
+            }
+
+            return leagueEntires;
         }
 
         public async Task<Summoner> UpdateSummerByName(string summonerName, Region region, bool tracking)
@@ -182,6 +229,8 @@ namespace LolCrawler.Api
         {
             try
             {
+                await RefreshLeagueEntries(summoner.Id, Region.Get(summoner.Region));
+
                 summoner.TrackingGameId = null;
                 await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
 

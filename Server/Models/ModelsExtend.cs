@@ -1,5 +1,7 @@
 ﻿using LolCrawler.Models;
+using System.Security.Cryptography.X509Certificates;
 using WebUtil.Models;
+using WebUtil.Util;
 
 namespace Server.Models
 {
@@ -27,6 +29,38 @@ namespace Server.Models
                 Tracking = summoner.Tracking,
                 TrackingGameId = summoner.TrackingGameId
             }.ToProtocol(summoner);
+        }
+
+        public static Protocols.Common.LeagueEntry ToProtocol(this LeagueEntry leagueEntry)
+        {
+            return new Protocols.Common.LeagueEntry
+            {
+                Inactive = leagueEntry.Inactive,
+                MiniSeries = leagueEntry.MiniSeries?.ToProtocol(),
+                FreshBlood = leagueEntry.FreshBlood,
+                Veteran = leagueEntry.Veteran,
+                HotStreak = leagueEntry.HotStreak,
+                Losses = leagueEntry.Losses,
+                Wins = leagueEntry.Wins,
+                LeaguePoints = leagueEntry.LeaguePoints,
+                Tier = leagueEntry.Tier,
+                QueueType = leagueEntry.QueueType,
+                SummonerName = leagueEntry.SummonerName,
+                SummonerId = leagueEntry.SummonerId,
+                LeagueId = leagueEntry.LeagueId,
+                Rank = leagueEntry.Rank,
+            }.ToProtocol(leagueEntry);
+        }
+
+        public static Protocols.Common.MiniSeries ToProtocol(this MiniSeries miniSeries)
+        {
+            return new Protocols.Common.MiniSeries
+            {
+                Losses = miniSeries.Losses,
+                Progress = miniSeries.Progress,
+                Target = miniSeries.Target,
+                Wins = miniSeries.Wins,
+            };
         }
 
         public static Protocols.Common.Notification ToProtocol(this Notification notification)

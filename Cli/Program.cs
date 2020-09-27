@@ -32,8 +32,8 @@ namespace Cli
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("config.json"));
 
             var riot = new RiotCrawler(database, new HttpClient()).Create(dict["RiotApiKey"]);
-            var summonerName = "sta";
-            var summoner = await riot.GetSummerByName(summonerName, Region.KR);
+            var summonerName = "elky";
+            var summoner = await riot.CreateSummerByName(summonerName, Region.KR, true);
             if (null == summoner)
             {
                 // If a summoner is not found, the response will be null.

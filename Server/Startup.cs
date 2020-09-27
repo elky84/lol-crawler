@@ -53,6 +53,7 @@ namespace Server
 
             services.AddSingleton<TrackingService>();
             services.AddSingleton<NotificationService>();
+            services.AddSingleton<SummonerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

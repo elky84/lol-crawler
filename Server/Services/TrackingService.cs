@@ -17,8 +17,6 @@ namespace Server.Services
 
         private readonly NotificationService _notificationService;
 
-        private readonly IHttpClientFactory _httpClientFactory;
-
         private readonly Dictionary<long, LolCrawler.Models.Champion> _champions = new Dictionary<long, LolCrawler.Models.Champion>();
 
         public TrackingService(IConfiguration configuration,
@@ -26,53 +24,11 @@ namespace Server.Services
             NotificationService notificationService,
             IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
             _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
             _notificationService = notificationService;
 
             _champions = (_riotApiCrawler.GetChampions(Region.KR).Result).ToDictionary(x => x.Key);
         }
-
-        public async Task<Protocols.Response.Tracking> Get(Protocols.Request.Tracking tracking)
-        {
-            var summoner = await _riotApiCrawler.GetSummerByName(tracking.SummonerName, Region.Get(tracking.Region));
-            return new Protocols.Response.Tracking
-            {
-                ResultCode = Code.ResultCode.Success,
-                Summoner = summoner?.ToProtocol()
-            };
-        }
-
-        public async Task<Protocols.Response.Tracking> Create(Protocols.Request.Tracking tracking)
-        {
-            var summoner = await _riotApiCrawler.CreateSummerByName(tracking.SummonerName, Region.Get(tracking.Region), tracking.Switch.GetValueOrDefault(false));
-            return new Protocols.Response.Tracking
-            {
-                ResultCode = Code.ResultCode.Success,
-                Summoner = summoner?.ToProtocol()
-            };
-        }
-
-        public async Task<Protocols.Response.Tracking> Update(Protocols.Request.Tracking tracking)
-        {
-            var summoner = await _riotApiCrawler.UpdateSummerByName(tracking.SummonerName, Region.Get(tracking.Region), tracking.Switch.GetValueOrDefault(false));
-            return new Protocols.Response.Tracking
-            {
-                ResultCode = Code.ResultCode.Success,
-                Summoner = summoner?.ToProtocol()
-            };
-        }
-
-        public async Task<Protocols.Response.Tracking> Delete(Protocols.Request.Tracking tracking)
-        {
-            var summoner = await _riotApiCrawler.DeleteSummerByName(tracking.SummonerName, Region.Get(tracking.Region));
-            return new Protocols.Response.Tracking
-            {
-                ResultCode = Code.ResultCode.Success,
-                Summoner = summoner?.ToProtocol()
-            };
-        }
-
 
         public async Task ExecuteBackground()
         {
@@ -82,9 +38,10 @@ namespace Server.Services
                     async (game) =>
                     {
                         var participant = game.Participants.FirstOrDefault(x => x.SummonerName == summoner.Name);
+
                         var champion = _champions[participant.ChampionId];
 
-                        var message = $"{summoner.Name}님이 {champion.Name}으로 게임을 시작하셨습니다";
+                        var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 시작하셨습니다";
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
                         await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl });
                     });
@@ -110,14 +67,14 @@ namespace Server.Services
 
                         if (win)
                         {
-                            var message = $"{summoner.Name}님이 {champion.Name}으로 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
+                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                             var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
 
                             await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl, winImageUrl });
                         }
                         else
                         {
-                            var message = $"{summoner.Name}님이 {champion.Name}으로 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
+                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                             var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
 
                             await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl, loseImageUrl });

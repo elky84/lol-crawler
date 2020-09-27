@@ -1,0 +1,46 @@
+### Summoner Create
+
+POST {{host}}/Summoner
+Content-Type: application/json
+
+{
+    "SummonerName":"elky",
+    "Region": "KR",
+    "Switch": true
+}
+
+### Summoner Get
+
+GET {{host}}/Summoner?summonerName=elky&region=KR
+
+
+### Summoner Refresh
+
+POST {{host}}/Summoner/Refresh
+Content-Type: application/json
+
+{
+    "SummonerName":"elky",
+    "Region": "KR",
+    "Switch": true
+}
+
+
+### Summoner Update
+
+PUT {{host}}/Summoner/elky
+Content-Type: application/json
+
+{
+    "Region": "KR",
+    "Switch": true
+}
+
+### Summoner Delete
+
+DELETE {{host}}/Summoner/elky
+Content-Type: application/json
+
+{
+    "Region": "KR"
+}

@@ -15,5 +15,9 @@ namespace WebUtil.Models
 
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime Created { get; set; } = DateTime.Now;
+
+
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        public DateTime Updated { get; set; }
     }
 }

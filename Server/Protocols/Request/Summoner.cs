@@ -1,6 +1,6 @@
 ﻿namespace Server.Protocols.Request
 {
-    public class Tracking
+    public class Summoner
     {
         public string SummonerName { get; set; }
 
