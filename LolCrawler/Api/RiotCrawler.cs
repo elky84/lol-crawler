@@ -42,7 +42,7 @@ namespace LolCrawler.Api
             HttpClient = httpClient;
         }
 
-        public RiotCrawler Create(string apiKey, int maxConcurrentRequests = 5, int retries = 3)
+        public RiotCrawler Create(string apiKey, int maxConcurrentRequests = 5, int retries = 0)
         {
             this.ApiKey = apiKey;
             RiotApi = RiotApi.NewInstance(new RiotApiConfig.Builder(apiKey)
@@ -142,14 +142,22 @@ namespace LolCrawler.Api
 
         public async Task<List<LeagueEntry>> RefreshLeagueEntries(string summonerId, Region region)
         {
-            var leagueEntires = (await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId)).Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>()).ToList();
-            foreach (var leagueEntry in leagueEntires)
+            try
             {
-                await MongoDbLeagueEntry.UpsertAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, leagueEntry.SummonerId) &
-                    Builders<LeagueEntry>.Filter.Eq(x => x.QueueType, leagueEntry.QueueType), leagueEntry);
-            }
+                var leagueEntires = (await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId)).Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>()).ToList();
+                foreach (var leagueEntry in leagueEntires)
+                {
+                    await MongoDbLeagueEntry.UpsertAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, leagueEntry.SummonerId) &
+                        Builders<LeagueEntry>.Filter.Eq(x => x.QueueType, leagueEntry.QueueType), leagueEntry);
+                }
 
-            return leagueEntires;
+                return leagueEntires;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex.Message);
+                return null;
+            }
         }
 
         public async Task<Summoner> UpdateSummerByName(string summonerName, Region region, bool tracking)
@@ -229,8 +237,6 @@ namespace LolCrawler.Api
         {
             try
             {
-                await RefreshLeagueEntries(summoner.Id, Region.Get(summoner.Region));
-
                 summoner.TrackingGameId = null;
                 await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
 
@@ -249,6 +255,12 @@ namespace LolCrawler.Api
         {
             try
             {
+                var match = await MongoDbMatch.FindOneAsync(Builders<Match>.Filter.Eq(x => x.GameId, gameId));
+                if (match != null)
+                {
+                    return match;
+                }
+
                 // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
                 var matchMetadata = await RiotApi.MatchV4.GetMatchAsync(region, gameId);
                 if (matchMetadata == null)

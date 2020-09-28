@@ -80,6 +80,7 @@ namespace Server.Services
                             await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl, loseImageUrl });
                         }
 
+                        await _riotApiCrawler.RefreshLeagueEntries(summoner.Id, Region.Get(summoner.Region));
                     }
                 }
             }
