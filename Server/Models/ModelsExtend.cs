@@ -12,6 +12,7 @@ namespace Server.Models
         {
             t.Id = header.Id;
             t.Created = header.Created;
+            t.Updated = header.Updated;
             return t;
         }
 
