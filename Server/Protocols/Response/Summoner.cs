@@ -5,7 +5,7 @@ namespace Server.Protocols.Response
 {
     public class Summoner : Header
     {
-        public Common.Summoner SummonerData { get; set; }
+        public Common.Summoner Data { get; set; }
 
         public List<Common.LeagueEntry> LeagueEntries { get; set; }
     }

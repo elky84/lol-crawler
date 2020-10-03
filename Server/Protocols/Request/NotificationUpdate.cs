@@ -2,6 +2,6 @@
 {
     public class NotificationUpdate
     {
-        public Common.Notification NotificationData { get; set; }
+        public Common.Notification Data { get; set; }
     }
 }

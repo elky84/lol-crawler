@@ -48,12 +48,12 @@ namespace Server.Services
 
         public async Task<Protocols.Response.Notification> Create(Protocols.Request.NotificationCreate notification)
         {
-            var created = await Create(notification.NotificationData);
+            var created = await Create(notification.Data);
 
             return new Protocols.Response.Notification
             {
                 ResultCode = ResultCode.Success,
-                NotificationData = created?.ToProtocol()
+                Data = created?.ToProtocol()
             };
 
         }
@@ -73,14 +73,14 @@ namespace Server.Services
         public async Task<Protocols.Response.NotificationMulti> CreateMulti(Protocols.Request.NotificationMulti notificationMulti)
         {
             var notifications = new List<Notification>();
-            foreach (var notification in notificationMulti.NotificationDatas)
+            foreach (var notification in notificationMulti.Datas)
             {
                 notifications.Add(await Create(notification));
             }
 
             return new Protocols.Response.NotificationMulti
             {
-                NotificationDatas = notifications.ConvertAll(x => x.ToProtocol())
+                Datas = notifications.ConvertAll(x => x.ToProtocol())
             };
         }
 
@@ -89,20 +89,20 @@ namespace Server.Services
             return new Protocols.Response.Notification
             {
                 ResultCode = ResultCode.Success,
-                NotificationData = (await _mongoDbNotification.FindOneAsyncById(id))?.ToProtocol()
+                Data = (await _mongoDbNotification.FindOneAsyncById(id))?.ToProtocol()
             };
         }
 
 
         public async Task<Protocols.Response.Notification> Update(string id, Protocols.Request.NotificationUpdate notificationUpdate)
         {
-            var update = notificationUpdate.NotificationData.ToModel();
+            var update = notificationUpdate.Data.ToModel();
 
             var updated = await _mongoDbNotification.UpdateAsync(id, update);
             return new Protocols.Response.Notification
             {
                 ResultCode = ResultCode.Success,
-                NotificationData = (updated ?? update).ToProtocol()
+                Data = (updated ?? update).ToProtocol()
             };
         }
 
@@ -111,7 +111,7 @@ namespace Server.Services
             return new Protocols.Response.Notification
             {
                 ResultCode = ResultCode.Success,
-                NotificationData = (await _mongoDbNotification.RemoveAsync(id))?.ToProtocol()
+                Data = (await _mongoDbNotification.RemoveAsync(id))?.ToProtocol()
             };
         }
 

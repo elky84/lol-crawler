@@ -9,7 +9,7 @@ POST {{host}}/Notification/Multi
 Content-Type: application/json
 
 {
-	"NotificationDatas": [
+	"Datas": [
         {
             "Type": "Discord",
             "Name": "LOL Tracker",
@@ -27,7 +27,7 @@ POST {{host}}/Notification/Multi
 Content-Type: application/json
 
 {
-	"NotificationDatas": [
+	"Datas": [
         {
 			"Type": "Discord",
             "Name": "LOL Tracker",
@@ -45,11 +45,13 @@ POST {{host}}/Notification
 Content-Type: application/json
 
 {
-    "Type": "Discord",
-    "Name": "LOL Tracker",
-    "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-    "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
-    "Region": "KR"
+    "Data": {
+        "Type": "Discord",
+        "Name": "LOL Tracker",
+        "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+        "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+        "Region": "KR"
+    }
 }
 
 ### Notification Get
@@ -62,11 +64,13 @@ PUT {{host}}/Notification/5f5a25cc6e6fbaf1a5e7ccca
 Content-Type: application/json
 
 {
-    "Type": "Discord",
-    "Name": "LOL Tracker",
-    "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-    "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
-    "Region": "KR"
+    "Data": {
+        "Type": "Discord",
+        "Name": "LOL Tracker",
+        "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
+        "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+        "Region": "KR"
+    }
 }
 
 ### Notification Delete

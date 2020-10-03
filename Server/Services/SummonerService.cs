@@ -24,58 +24,58 @@ namespace Server.Services
 
         public async Task<Protocols.Response.Summoner> Get(Protocols.Request.Summoner summoner)
         {
-            var summonerData = await _riotApiCrawler.GetSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
-            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(summonerData);
+            var Data = await _riotApiCrawler.GetSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
+            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = Code.ResultCode.Success,
-                SummonerData = summonerData?.ToProtocol(),
+                Data = Data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Create(Protocols.Request.Summoner summoner)
         {
-            var summonerData = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
-            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(summonerData);
+            var Data = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = Code.ResultCode.Success,
-                SummonerData = summonerData?.ToProtocol(),
+                Data = Data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Refresh(Protocols.Request.Summoner summoner)
         {
-            var summonerData = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
-            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(summonerData);
+            var Data = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = Code.ResultCode.Success,
-                SummonerData = summonerData?.ToProtocol(),
+                Data = Data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Update(Protocols.Request.Summoner summoner)
         {
-            var summonerData = await _riotApiCrawler.UpdateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var Data = await _riotApiCrawler.UpdateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
             return new Protocols.Response.Summoner
             {
                 ResultCode = Code.ResultCode.Success,
-                SummonerData = summonerData?.ToProtocol()
+                Data = Data?.ToProtocol()
             };
         }
 
         public async Task<Protocols.Response.Summoner> Delete(Protocols.Request.Summoner summoner)
         {
-            var summonerData = await _riotApiCrawler.DeleteSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
-            await _riotApiCrawler.DeleteLeagueEntries(summonerData);
+            var Data = await _riotApiCrawler.DeleteSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
+            await _riotApiCrawler.DeleteLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = Code.ResultCode.Success,
-                SummonerData = summonerData?.ToProtocol()
+                Data = Data?.ToProtocol()
             };
         }
     }
