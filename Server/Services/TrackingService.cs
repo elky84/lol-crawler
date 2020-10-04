@@ -41,7 +41,7 @@ namespace Server.Services
 
                         var champion = _champions[participant.ChampionId];
 
-                        var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 시작하셨습니다";
+                        var message = $"{summoner.Name}님이 {champion.Name}(으)로 {game.GameMode} 모드 게임을 시작하셨습니다";
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
                         await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl });
                     });
@@ -51,7 +51,7 @@ namespace Server.Services
                     var match = await _riotApiCrawler.GetMatch(playingGame.GameId, Region.Get(summoner.Region));
                     if (match != null)
                     {
-                        await _riotApiCrawler.EndGame(summoner, playingGame);
+                        _ = _riotApiCrawler.EndGame(summoner, playingGame);
 
                         var participantIdentity = match.ParticipantIdentities.FirstOrDefault(x => x.Player.SummonerName == summoner.Name);
                         var participant = match.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
@@ -67,14 +67,14 @@ namespace Server.Services
 
                         if (win)
                         {
-                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
+                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.GameMode}모드 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                             var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
 
                             await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl, winImageUrl });
                         }
                         else
                         {
-                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
+                            var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.GameMode}모드 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                             var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
 
                             await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl, loseImageUrl });
