@@ -51,7 +51,7 @@ namespace Server.Services
                     var match = await _riotApiCrawler.GetMatch(playingGame.GameId, Region.Get(summoner.Region));
                     if (match != null)
                     {
-                        _ = _riotApiCrawler.EndGame(summoner, playingGame);
+                        _riotApiCrawler.EndGame(summoner, playingGame);
 
                         var participantIdentity = match.ParticipantIdentities.FirstOrDefault(x => x.Player.SummonerName == summoner.Name);
                         var participant = match.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);

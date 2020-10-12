@@ -233,15 +233,15 @@ namespace LolCrawler.Api
             }
         }
 
-        public async Task<CurrentGame> EndGame(Summoner summoner, CurrentGame currentGame)
+        public CurrentGame EndGame(Summoner summoner, CurrentGame currentGame)
         {
             try
             {
                 summoner.TrackingGameId = null;
-                await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
+                MongoDbSummoner.Update(summoner.Id, summoner);
 
                 currentGame.GameState = Code.GameState.End;
-                return await MongoDbCurrentGame.UpdateAsync(currentGame.Id, currentGame);
+                return MongoDbCurrentGame.Update(currentGame.Id, currentGame);
             }
             catch (Exception ex)
             {
