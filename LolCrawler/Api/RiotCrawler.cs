@@ -251,7 +251,7 @@ namespace LolCrawler.Api
         }
 
 
-        public async Task<Match> GetMatch(long gameId, Region region)
+        public async Task<Match> GetMatch(long gameId, Region region, Action<Match> action = null)
         {
             try
             {
@@ -269,7 +269,11 @@ namespace LolCrawler.Api
                 }
 
                 return await MongoDbMatch.UpsertAsync(Builders<Match>.Filter.Eq(x => x.GameId, gameId),
-                    matchMetadata.ConvertTo<Match, MingweiSamuel.Camille.MatchV4.Match>());
+                    matchMetadata.ConvertTo<Match, MingweiSamuel.Camille.MatchV4.Match>(),
+                    (match) =>
+                    {
+                        action?.Invoke(match);
+                    });
             }
             catch (Exception ex)
             {
