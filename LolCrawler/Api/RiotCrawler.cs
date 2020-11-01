@@ -185,7 +185,7 @@ namespace LolCrawler.Api
         {
             try
             {
-                return await MongoDbSummoner.RemoveAsync(SummonerFilter(summonerName, region));
+                return await MongoDbSummoner.RemoveGetAsync(SummonerFilter(summonerName, region));
             }
             catch (Exception ex)
             {
