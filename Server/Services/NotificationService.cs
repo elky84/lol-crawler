@@ -176,10 +176,11 @@ namespace Server.Services
                     }
                 }
             });
+        }
 
-            public void HttpTaskRun()
-            {
-                ProcessDiscordWebHooks();
-            }
+        public void HttpTaskRun()
+        {
+            ProcessDiscordWebHooks();
         }
     }
+}

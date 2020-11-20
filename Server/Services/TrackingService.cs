@@ -27,7 +27,12 @@ namespace Server.Services
             _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
             _notificationService = notificationService;
 
-            _champions = (_riotApiCrawler.GetChampions(Region.KR).Result).ToDictionary(x => x.Key);
+            var champions = _riotApiCrawler.GetChampions(Region.KR).Result;
+
+            if (champions != null)
+            {
+                _champions = champions.ToDictionary(x => x.Key);
+            }
         }
 
         public async Task ExecuteBackground()
