@@ -176,6 +176,12 @@ namespace Server.Services
                     }
                 }
             });
+
+
+            foreach (var process in processList)
+            {
+                _discordWebHooks.Remove(process);
+            }
         }
 
         public void HttpTaskRun()
