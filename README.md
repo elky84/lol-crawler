@@ -28,3 +28,4 @@ Server 가동시 `appsettings.Development.json`, `appsettings.Production.json` �
 
 또한 localhost에 mongodb를 구축하지 않으셨다면, `appsetting.[환경].json`에서 `ConnectionString` 부분을 수정하세요.
 
+![lol-crawler](./lol-crawler.png)
