@@ -14,10 +14,9 @@ Content-Type: application/json
             "Type": "Discord",
             "Name": "LOL Tracker",
             "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-            "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+            "HookUrl": "",
             "Region": "KR"
-		}
-	]
+	}]
 }
 
 
@@ -29,13 +28,12 @@ Content-Type: application/json
 {
 	"Datas": [
         {
-			"Type": "Discord",
+	    "Type": "Discord",
             "Name": "LOL Tracker",
             "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-            "HookUrl": "https://discordapp.com/api/webhooks/757093882747158622/m2mrsgUWaPIzi8K7DjuRTLmUZet5VuNllhKRkekhcx_MSNHSRTdmuSISq67HlwN1ehJ6",
+            "HookUrl": "",
             "Region": "KR"
-		}
-	]
+	}]
 }
 
 
@@ -49,7 +47,7 @@ Content-Type: application/json
         "Type": "Discord",
         "Name": "LOL Tracker",
         "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-        "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+        "HookUrl": "",
         "Region": "KR"
     }
 }
@@ -68,7 +66,7 @@ Content-Type: application/json
         "Type": "Discord",
         "Name": "LOL Tracker",
         "IconUrl": "http://2.bp.blogspot.com/-HqSOKIIV59A/U8WP4WFW28I/AAAAAAAAT5U/qTSiV9UgvUY/s1600/icon.png",
-        "HookUrl": "https://discordapp.com/api/webhooks/759358069867282432/DH01PcCRqsabxWebmxRKSpoT8lP2IUEo84jGtgzy-VFm5frLPsm0fy2RU5sZ_Gd5KBom",
+        "HookUrl": "",
         "Region": "KR"
     }
 }
