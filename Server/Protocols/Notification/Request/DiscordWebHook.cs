@@ -44,5 +44,17 @@ namespace Server.Protocols.Notification.Request
 
             return this;
         }
+
+        public DiscordWebHook Clone()
+        {
+            return new DiscordWebHook
+            {
+                avatar_url = avatar_url,
+                content = content,
+                embeds = embeds,
+                HookUrl = HookUrl,
+                username = username
+            };
+        }
     }
 }
