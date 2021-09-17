@@ -6,7 +6,6 @@ namespace LolCrawler.Code
 {
     public enum GameState
     {
-        Invalid,
         Playing,
         End
     }

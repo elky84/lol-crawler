@@ -205,7 +205,7 @@ namespace LolCrawler.Api
         {
             try
             {
-                if (!summoner.TrackingGameId.HasValue)
+                if (summoner.TrackingGameId.HasValue)
                 {
                     var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, summoner.TrackingGameId.GetValueOrDefault()));
                     if (playingGame != null)
@@ -224,7 +224,6 @@ namespace LolCrawler.Api
                     currentGame.ConvertTo<CurrentGame, MingweiSamuel.Camille.SpectatorV4.CurrentGameInfo>(),
                     async (game) =>
                     {
-                        game.GameState = Code.GameState.Playing;
                         summoner.TrackingGameId = game.GameId;
                         await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
                         action?.Invoke(game);
