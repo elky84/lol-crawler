@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using WebUtil.Settings;
+using System;
 
 namespace Server.Services
 {
@@ -17,7 +18,9 @@ namespace Server.Services
 
         private readonly NotificationService _notificationService;
 
-        private readonly Dictionary<long, LolCrawler.Models.Champion> _champions = new Dictionary<long, LolCrawler.Models.Champion>();
+        private Dictionary<long, LolCrawler.Models.Champion> _champions = new Dictionary<long, LolCrawler.Models.Champion>();
+
+        private DateTime OldDate;
 
         public TrackingService(IConfiguration configuration,
             MongoDbService mongoDbService,
@@ -26,9 +29,11 @@ namespace Server.Services
         {
             _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
             _notificationService = notificationService;
+        }
 
-            var champions = _riotApiCrawler.GetChampions(Region.KR).Result;
-
+        private async Task LoadChampions()
+        {
+            var champions = await _riotApiCrawler.GetChampions(Region.KR);
             if (champions != null)
             {
                 _champions = champions.ToDictionary(x => x.Key);
@@ -37,6 +42,11 @@ namespace Server.Services
 
         public async Task ExecuteBackground()
         {
+            if (OldDate.Date != DateTime.Now.Date)
+                await LoadChampions();
+
+            OldDate = DateTime.Now;
+
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,

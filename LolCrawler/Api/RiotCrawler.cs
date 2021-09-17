@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -288,8 +289,16 @@ namespace LolCrawler.Api
         {
             try
             {
-                // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
-                var championList = await HttpClient.Request<ChampionList>(HttpMethod.Get, "http://ddragon.leagueoflegends.com/cdn/10.16.1/data/ko_KR/champion.json");
+                var regionInfo = new RegionInfo(region.Key);
+
+                var cultureInfo = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+                    .FirstOrDefault(x => x.ThreeLetterWindowsLanguageName.ToLower() == regionInfo.ThreeLetterWindowsRegionName.ToLower());
+
+                var version = (await HttpClient.Request<List<string>>(HttpMethod.Get, "https://ddragon.leagueoflegends.com/api/versions.json")).FirstOrDefault();
+
+                var cultureCode = cultureInfo.Name.Replace("-", "_");
+
+                var championList = await HttpClient.Request<ChampionList>(HttpMethod.Get, $"http://ddragon.leagueoflegends.com/cdn/{version}/data/{cultureCode}/champion.json");
                 var champions = championList.Data.Values.ToList();
                 foreach (var champion in champions)
                 {

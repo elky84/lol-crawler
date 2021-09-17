@@ -11,8 +11,7 @@ namespace Server.Services
     {
         private readonly TrackingService _trackingService;
 
-        public TrackingLoopingService(TrackingService trackingService
-            )
+        public TrackingLoopingService(TrackingService trackingService)
         {
             _trackingService = trackingService;
         }
