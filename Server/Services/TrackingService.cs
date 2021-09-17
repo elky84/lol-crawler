@@ -61,7 +61,7 @@ namespace Server.Services
                         await _notificationService.Execute(summoner.Region, message, new List<string> { championImageUrl });
                     });
 
-                if (playingGame != null)
+                if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
                 {
                     var match = await _riotApiCrawler.GetMatch(playingGame.GameId, Region.Get(summoner.Region),
                         async (match) =>

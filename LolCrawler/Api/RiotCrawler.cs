@@ -205,10 +205,13 @@ namespace LolCrawler.Api
         {
             try
             {
-                var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, summoner.TrackingGameId.GetValueOrDefault()));
-                if (playingGame != null)
+                if (!summoner.TrackingGameId.HasValue)
                 {
-                    return playingGame;
+                    var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, summoner.TrackingGameId.GetValueOrDefault()));
+                    if (playingGame != null)
+                    {
+                        return playingGame;
+                    }
                 }
 
                 var currentGame = await RiotApi.SpectatorV4.GetCurrentGameInfoBySummonerAsync(Region.Get(summoner.Region), summoner.SummonerId);
@@ -299,10 +302,16 @@ namespace LolCrawler.Api
                 var cultureCode = cultureInfo.Name.Replace("-", "_");
 
                 var championList = await HttpClient.Request<ChampionList>(HttpMethod.Get, $"http://ddragon.leagueoflegends.com/cdn/{version}/data/{cultureCode}/champion.json");
+
+                var originChampions = (await MongoDbChampion.All()).ToDictionary(x => x.ChampionId);
+
                 var champions = championList.Data.Values.ToList();
                 foreach (var champion in champions)
                 {
-                    await MongoDbChampion.UpsertAsync(Builders<Models.Champion>.Filter.Eq(x => x.ChampionId, champion.ChampionId), champion);
+                    if (!originChampions.ContainsKey(champion.ChampionId))
+                    {
+                        await MongoDbChampion.UpsertAsync(Builders<Models.Champion>.Filter.Eq(x => x.ChampionId, champion.ChampionId), champion);
+                    }
                 }
 
                 return champions;
