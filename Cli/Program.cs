@@ -41,15 +41,15 @@ namespace Cli
                 return;
             }
 
-            var currentGame = await riot.GetCurrentGame(summoner);
-            if (null == currentGame)
-            {
-                // If a summoner is not found, the response will be null.
-                Log.Logger.Information($"Summoner '{summonerName}' currentGame not found.");
-                return;
-            }
+            //var currentGame = await riot.GetCurrentGame(summoner);
+            //if (null == currentGame)
+            //{
+            //    // If a summoner is not found, the response will be null.
+            //    Log.Logger.Information($"Summoner '{summonerName}' currentGame not found.");
+            //    return;
+            //}
 
-            var match = await riot.GetMatch(currentGame.GameId, Region.Get(summoner.Region));
+            //var match = await riot.GetMatch(currentGame.GameId, Region.Get(summoner.Region));
 
             //// 추가로 DB에 저장할 데이터
             //// 1. SummonerChampion (챔피언 숙련도 등)
@@ -57,6 +57,7 @@ namespace Cli
 
             // Get 10 most recent matches (blocking).
             // Queue ID 420 is RANKED_SOLO_5v5 (TODO)
+            // Queue 참고 https://static.developer.riotgames.com/docs/lol/queues.json
             var matchlist = await riot.RiotApi.MatchV4.GetMatchlistAsync(
                Region.KR, summoner.AccountId, queue: new[] { 420 }, endIndex: 10);
             // Get match results (done asynchronously -> not blocking -> fast).

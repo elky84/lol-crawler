@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using WebUtil.Settings;
 using System;
+using Serilog;
 
 namespace Server.Services
 {
@@ -52,7 +53,13 @@ namespace Server.Services
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
                     {
-                        var participant = game.Participants.FirstOrDefault(x => x.SummonerName == summoner.Name);
+                        var participant = game.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
+                        if(participant == null)
+                        {
+                            Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.GameId}>");
+                            await _notificationService.Execute(summoner.Region, $"{summoner.Name}님이 {game.GameMode} 모드 게임을 시작하셨습니다");
+                            return;
+                        }
 
                         var champion = _champions[participant.ChampionId];
 
@@ -68,8 +75,21 @@ namespace Server.Services
                         {
                             _riotApiCrawler.EndGame(summoner, playingGame);
 
-                            var participantIdentity = match.ParticipantIdentities.FirstOrDefault(x => x.Player.SummonerName == summoner.Name);
+                            var participantIdentity = match.ParticipantIdentities.FirstOrDefault(x => x.Player.SummonerId == summoner.SummonerId);
+                            if (participantIdentity == null)
+                            {
+                                Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                await _notificationService.Execute(summoner.Region, $"{summoner.Name}님이 {match.GameMode} 모드 게임을 종료하셨습니다");
+                                return;
+                            }
+
                             var participant = match.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
+                            if (participantIdentity == null)
+                            {
+                                Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                await _notificationService.Execute(summoner.Region, $"{summoner.Name}님이 {match.GameMode} 모드 게임을 종료하셨습니다");
+                                return;
+                            }
 
                             var win = participant.Stats.Win;
                             var k = participant.Stats.Kills;
