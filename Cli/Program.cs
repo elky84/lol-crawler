@@ -5,7 +5,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using LolCrawler.Api;
+using LolCrawler.Code;
 using MingweiSamuel.Camille.Enums;
+using MingweiSamuel.Camille.MatchV5;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Serilog;
@@ -41,31 +43,33 @@ namespace Cli
                 return;
             }
 
-            //var currentGame = await riot.GetCurrentGame(summoner);
-            //if (null == currentGame)
-            //{
-            //    // If a summoner is not found, the response will be null.
-            //    Log.Logger.Information($"Summoner '{summonerName}' currentGame not found.");
-            //    return;
-            //}
+            var currentGame = await riot.GetCurrentGame(summoner);
+            if (null == currentGame)
+            {
+                // If a summoner is not found, the response will be null.
+                Log.Logger.Information($"Summoner '{summonerName}' currentGame not found.");
+                return;
+            }
 
-            //var match = await riot.GetMatch(currentGame.GameId, Region.Get(summoner.Region));
+            var matchIds = await riot.RiotApi.MatchV5.GetMatchIdsByPUUIDAsync(MatchRegion.FromRegion(Region.KR), summoner.Puuid);
+            // Queue ID 420 is RANKED_SOLO_5v5 (TODO)
+            // Queue 참고 https://static.developer.riotgames.com/docs/lol/queues.json
+            List<Match> matches = new();
+            foreach (var matchId in matchIds)
+            {
+                // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
+                var matchData = await riot.RiotApi.MatchV5.GetMatchAsync(MatchRegion.FromRegion(Region.KR), matchId);
+                if (matchData == null)
+                {
+                    continue;
+                }
+
+                matches.Add(matchData);
+            }
 
             //// 추가로 DB에 저장할 데이터
             //// 1. SummonerChampion (챔피언 숙련도 등)
             //// https://github.com/MingweiSamuel/Camille 가서 챔피언 숙련도 데이터도 가져오기
-
-            // Get 10 most recent matches (blocking).
-            // Queue ID 420 is RANKED_SOLO_5v5 (TODO)
-            // Queue 참고 https://static.developer.riotgames.com/docs/lol/queues.json
-            var matchlist = await riot.RiotApi.MatchV4.GetMatchlistAsync(
-               Region.KR, summoner.AccountId, queue: new[] { 420 }, endIndex: 10);
-            // Get match results (done asynchronously -> not blocking -> fast).
-            var matchDataTasks = matchlist.Matches.Select(
-                   matchMetadata => riot.RiotApi.MatchV4.GetMatchAsync(Region.KR, matchMetadata.GameId)
-               ).ToArray();
-            // Wait for all task requests to complete asynchronously.
-            var matchDatas = await Task.WhenAll(matchDataTasks);
         }
     }
 }

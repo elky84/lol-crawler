@@ -1,4 +1,5 @@
-﻿using LolCrawler.Models;
+﻿using LolCrawler.Code;
+using LolCrawler.Models;
 using LolCrawler.Protocols;
 using MingweiSamuel.Camille;
 using MingweiSamuel.Camille.Enums;
@@ -207,7 +208,7 @@ namespace LolCrawler.Api
             {
                 if (summoner.TrackingGameId.HasValue)
                 {
-                    var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, summoner.TrackingGameId.GetValueOrDefault()));
+                    var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.Info.GameId, summoner.TrackingGameId.GetValueOrDefault()));
                     if (playingGame != null)
                     {
                         return playingGame;
@@ -220,14 +221,21 @@ namespace LolCrawler.Api
                     return null;
                 }
 
-                return await MongoDbCurrentGame.UpsertAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, currentGame.GameId),
-                    currentGame.ConvertTo<CurrentGame, MingweiSamuel.Camille.SpectatorV4.CurrentGameInfo>(),
-                    async (game) =>
-                    {
-                        summoner.TrackingGameId = game.GameId;
-                        await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
-                        action?.Invoke(game);
-                    });
+                var origin = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.Info.GameId, currentGame.GameId));
+                if(origin != null)
+                {
+                    return origin;
+                }
+
+                var newCurrentGame = new CurrentGame { Info = currentGame };
+
+                summoner.TrackingGameId = newCurrentGame.Info.GameId;
+                await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
+
+                var newDbGame = await MongoDbCurrentGame.CreateAsync(newCurrentGame);
+
+                action?.Invoke(newDbGame);
+                return newDbGame;
             }
             catch (Exception ex)
             {
@@ -254,29 +262,41 @@ namespace LolCrawler.Api
         }
 
 
-        public async Task<Match> GetMatch(long gameId, Region region, Action<Match> action = null)
+        public async Task<Match> GetMatch(Summoner summoner, long gameId, Region region, Action<Match> action = null)
         {
             try
             {
-                var match = await MongoDbMatch.FindOneAsync(Builders<Match>.Filter.Eq(x => x.GameId, gameId));
+                var match = await MongoDbMatch.FindOneAsync(Builders<Match>.Filter.Eq(x => x.Info.GameId, gameId));
                 if (match != null)
                 {
                     return match;
                 }
 
-                // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
-                var matchMetadata = await RiotApi.MatchV4.GetMatchAsync(region, gameId);
-                if (matchMetadata == null)
+                var matchRegion = MatchRegion.FromRegion(region);
+                var matchIds = await RiotApi.MatchV5.GetMatchIdsByPUUIDAsync(matchRegion, summoner.Puuid);
+                List<Match> matches = new();
+                foreach(var matchId in matchIds)
                 {
-                    return null;
+                    // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
+                    var matchData = await RiotApi.MatchV5.GetMatchAsync(matchRegion, matchId);
+                    if (matchData == null)
+                    {
+                        Log.Logger.Error($"Not found MatchData. <Region:{matchRegion}> <MatchId:{matchId}>");
+                        continue;
+                    }
+
+                    matches.Add(await MongoDbMatch.UpsertAsync(Builders<Match>.Filter.Eq(x => x.Info.GameId, gameId),
+                        matchData.ConvertTo<Match, MingweiSamuel.Camille.MatchV5.Match>(),
+                        (match) =>
+                        {
+                            if( match.Info.GameId == gameId)
+                            {
+                                action?.Invoke(match);
+                            }
+                        }));
                 }
 
-                return await MongoDbMatch.UpsertAsync(Builders<Match>.Filter.Eq(x => x.GameId, gameId),
-                    matchMetadata.ConvertTo<Match, MingweiSamuel.Camille.MatchV4.Match>(),
-                    (match) =>
-                    {
-                        action?.Invoke(match);
-                    });
+                return matches.FirstOrDefault(x => x.Info.GameId == gameId);
             }
             catch (Exception ex)
             {
