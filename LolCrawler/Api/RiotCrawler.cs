@@ -262,14 +262,14 @@ namespace LolCrawler.Api
         }
 
 
-        public async Task<Match> GetMatch(Summoner summoner, long gameId, Region region, Action<Match> action = null)
+        public async Task GetMatch(Summoner summoner, long gameId, Region region, Action<Match> action = null)
         {
             try
             {
                 var match = await MongoDbMatch.FindOneAsync(Builders<Match>.Filter.Eq(x => x.Info.GameId, gameId));
                 if (match != null)
                 {
-                    return match;
+                    return;
                 }
 
                 var matchRegion = MatchRegion.FromRegion(region);
@@ -295,13 +295,11 @@ namespace LolCrawler.Api
                             }
                         }));
                 }
-
-                return matches.FirstOrDefault(x => x.Info.GameId == gameId);
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex.Message);
-                return null;
+                return;
             }
 
         }
