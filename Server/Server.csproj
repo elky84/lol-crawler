@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LolCrawler\LolCrawler.csproj" />
-    <ProjectReference Include="..\WebUtil\WebUtil.csproj" />
   </ItemGroup>
 
   <ItemGroup>

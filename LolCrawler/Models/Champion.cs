@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using WebUtil.Models;
+using MongoDbWebUtil.Models;
 
 namespace LolCrawler.Models
 {

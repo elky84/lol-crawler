@@ -8,7 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Server/Server.csproj", "Server/"]
-COPY ["WebUtil/WebUtil.csproj", "WebUtil/"]
+COPY ["MongoDbWebUtil/MongoDbWebUtil.csproj", "MongoDbWebUtil/"]
 COPY ["LolCrawler/LolCrawler.csproj", "LolCrawler/"]
 RUN dotnet restore "Server/Server.csproj"
 COPY . .

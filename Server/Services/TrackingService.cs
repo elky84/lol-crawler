@@ -1,13 +1,13 @@
 ﻿using Server.Models;
 using System.Threading.Tasks;
-using WebUtil.Services;
+using MongoDbWebUtil.Services;
 using LolCrawler.Api;
 using MingweiSamuel.Camille.Enums;
 using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using WebUtil.Settings;
+using MongoDbWebUtil.Settings;
 using System;
 using Serilog;
 

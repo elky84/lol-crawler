@@ -1,7 +1,7 @@
 ﻿using LolCrawler.Models;
 using System.Security.Cryptography.X509Certificates;
-using WebUtil.Models;
-using WebUtil.Util;
+using MongoDbWebUtil.Models;
+using MongoDbWebUtil.Util;
 
 namespace Server.Models
 {
