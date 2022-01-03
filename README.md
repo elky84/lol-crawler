@@ -1,7 +1,7 @@
 [![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg?label=elky-essay)](https://elky84.github.io)
-<img src="https://img.shields.io/badge/made%20with-JavaScript-brightgreen.svg" alt="made with JavaScript">
-<img src="https://img.shields.io/badge/made%20with-.NET 6-red.svg" alt="made with .NET6">
-<img src="https://img.shields.io/badge/made%20with-MongoDB-red.svg" alt="made with MongoDB">
+![Made with](https://img.shields.io/badge/made%20with-.NET6-brightgreen.svg)
+![Made with](https://img.shields.io/badge/made%20with-JavaScript-blue.svg)
+![Made with](https://img.shields.io/badge/made%20with-MongoDB-red.svg)
 
 ![GitHub forks](https://img.shields.io/github/forks/elky84/lol-crawler.svg?style=social&label=Fork)
 ![GitHub stars](https://img.shields.io/github/stars/elky84/lol-crawler.svg?style=social&label=Stars)
