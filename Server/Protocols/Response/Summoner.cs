@@ -1,9 +1,10 @@
 ﻿
+using Server.Protocols.Common;
 using System.Collections.Generic;
 
 namespace Server.Protocols.Response
 {
-    public class Summoner : Header
+    public class Summoner : EzAspDotNet.Protocols.ResponseHeader
     {
         public Common.Summoner Data { get; set; }
 

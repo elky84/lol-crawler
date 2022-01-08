@@ -6,9 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Server.Exception;
 using Server.Services;
 using MongoDbWebUtil.Services;
+using EzAspDotNet.Services;
+using EzAspDotNet.Exception;
 
 namespace Server
 {
@@ -49,10 +50,12 @@ namespace Server
             services.AddTransient<MongoDbService>();
 
             services.AddSingleton<IHostedService, TrackingLoopingService>();
-            services.AddSingleton<IHostedService, NotificationLoopingService>();
+            services.AddSingleton<IHostedService, WebHookLoopingService>();
 
             services.AddSingleton<TrackingService>();
             services.AddSingleton<NotificationService>();
+            services.AddSingleton<WebHookService>();
+
             services.AddSingleton<SummonerService>();
         }
 

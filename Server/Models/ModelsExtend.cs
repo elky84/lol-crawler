@@ -1,14 +1,13 @@
 ﻿using LolCrawler.Models;
-using System.Security.Cryptography.X509Certificates;
 using MongoDbWebUtil.Models;
-using MongoDbWebUtil.Util;
+using Server.Protocols.Common;
 
 namespace Server.Models
 {
     public static class ModelsExtend
     {
         public static T ToProtocol<T>(this T t, MongoDbHeader header)
-            where T : Protocols.Common.Header
+            where T : Header
         {
             t.Id = header.Id;
             t.Created = header.Created;
@@ -16,7 +15,7 @@ namespace Server.Models
             return t;
         }
 
-        public static Protocols.Common.Summoner ToProtocol(this Summoner summoner)
+        public static Protocols.Common.Summoner ToProtocol(this LolCrawler.Models.Summoner summoner)
         {
             return new Protocols.Common.Summoner
             {
@@ -32,7 +31,7 @@ namespace Server.Models
             }.ToProtocol(summoner);
         }
 
-        public static Protocols.Common.LeagueEntry ToProtocol(this LeagueEntry leagueEntry)
+        public static Protocols.Common.LeagueEntry ToProtocol(this LolCrawler.Models.LeagueEntry leagueEntry)
         {
             return new Protocols.Common.LeagueEntry
             {
@@ -53,7 +52,7 @@ namespace Server.Models
             }.ToProtocol(leagueEntry);
         }
 
-        public static Protocols.Common.MiniSeries ToProtocol(this MiniSeries miniSeries)
+        public static Protocols.Common.MiniSeries ToProtocol(this LolCrawler.Models.MiniSeries miniSeries)
         {
             return new Protocols.Common.MiniSeries
             {
@@ -64,7 +63,7 @@ namespace Server.Models
             };
         }
 
-        public static Protocols.Common.Notification ToProtocol(this Notification notification)
+        public static Protocols.Common.Notification ToProtocol(this EzAspDotNet.Notification.Models.Notification notification)
         {
             return new Protocols.Common.Notification
             {
@@ -72,32 +71,32 @@ namespace Server.Models
                 HookUrl = notification.HookUrl,
                 Channel = notification.Channel,
                 IconUrl = notification.IconUrl,
-                Region = notification.Region,
+                CrawlingType = notification.CrawlingType,
             }.ToProtocol(notification);
         }
 
-        public static Notification ToModel(this Protocols.Common.Notification notification)
+        public static EzAspDotNet.Notification.Models.Notification ToModel(this Protocols.Common.Notification notification)
         {
-            return new Notification
+            return new EzAspDotNet.Notification.Models.Notification
             {
                 Id = notification.Id,
                 Name = notification.Name,
                 HookUrl = notification.HookUrl,
                 Channel = notification.Channel,
                 IconUrl = notification.IconUrl,
-                Region = notification.Region
+                CrawlingType = notification.CrawlingType
             };
         }
 
-        public static Notification ToModel(this Protocols.Common.NotificationCreate notification)
+        public static EzAspDotNet.Notification.Models.Notification ToModel(this Protocols.Common.NotificationCreate notification)
         {
-            return new Notification
+            return new EzAspDotNet.Notification.Models.Notification
             {
                 Name = notification.Name,
                 HookUrl = notification.HookUrl,
                 Channel = notification.Channel,
                 IconUrl = notification.IconUrl,
-                Region = notification.Region,
+                CrawlingType = notification.CrawlingType,
             };
         }
     }

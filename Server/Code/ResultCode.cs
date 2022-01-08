@@ -5,16 +5,13 @@ using System.Threading.Tasks;
 
 namespace Server.Code
 {
-    public enum ResultCode
+    public class ResultCode : EzAspDotNet.Code.ResultCode
     {
-        Success,
-        UsingUserId,
-        NotEnoughBalance,
-        UsingNotificationId,
-        CannotOverHaveStockAmount,
-        NotFoundStockCodeData,
-        NotImplementedYet,
-        NotFoundStockData,
-        UnknownException
+        public ResultCode(int id, string name) : base(id, name)
+        {
+        }
+
+        public static ResultCode UsingUserId = new(10000, "UsingUserId");
+        public static ResultCode UsingNotificationId = new(10002, "UsingNotificationId");
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 using MongoDbWebUtil.Services;
 using System.Threading;
-using Serilog;
 using System;
-using Server.Exception;
+using EzAspDotNet.Exception;
 
 namespace Server.Services
 {

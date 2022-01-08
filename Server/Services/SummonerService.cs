@@ -28,7 +28,7 @@ namespace Server.Services
             var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Code.ResultCode.Success,
                 Data = Data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
@@ -40,7 +40,7 @@ namespace Server.Services
             var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Code.ResultCode.Success,
                 Data = Data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
