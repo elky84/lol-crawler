@@ -53,7 +53,7 @@ namespace Server.Services
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-                var title = $"소환사 <{summoner.Name}>";
+                var content = $"소환사 <{summoner.Name}>";
 
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
@@ -69,8 +69,8 @@ namespace Server.Services
 
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
                         await _webHookService.Execute(builder, 
-                            title,
-                            $"{summoner.Name}님이 {champion.Name}(으)로 {game.Info.GameMode} 모드 게임을 시작하셨습니다",
+                            $"[시작] 소환사 '{summoner.Name}'",
+                            $"<챔피언:{champion.Name}, 게임모드:{game.Info.GameMode}>",
                             summoner.Name,
                             $"https://www.op.gg/summoner/userName={summoner.Name}",
                             DateTime.Now,
@@ -109,12 +109,11 @@ namespace Server.Services
 
                             if (win)
                             {
-                                var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.Info.GameMode}모드 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                                 var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
 
-                                await _webHookService.Execute(builder, 
-                                    title,
-                                    message,
+                                await _webHookService.Execute(builder,
+                                    $"[승리] 소환사 '{summoner.Name}'",
+                                    $"<챔피언:{champion.Name}, 게임모드:{playingGame.Info.GameMode}, KDA:{kda}, K:{k}/D:{d}/A:{a}>",
                                     summoner.Name,
                                     $"https://www.op.gg/summoner/userName={summoner.Name}",
                                     DateTime.Now,
@@ -122,12 +121,11 @@ namespace Server.Services
                             }
                             else
                             {
-                                var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.Info.GameMode}모드 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                                 var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
 
-                                await _webHookService.Execute(builder, 
-                                    title,
-                                    message,
+                                await _webHookService.Execute(builder,
+                                    $"[패배] 소환사 '{summoner.Name}'",
+                                    $"<챔피언:{champion.Name}, 게임모드:{playingGame.Info.GameMode}, KDA:{kda}, K:{k}/D:{d}/A:{a}>",
                                     summoner.Name,
                                     $"https://www.op.gg/summoner/userName={summoner.Name}",
                                     DateTime.Now,
