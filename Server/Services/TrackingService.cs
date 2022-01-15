@@ -53,7 +53,7 @@ namespace Server.Services
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-                var title = String.Empty;
+                var title = $"소환사 <{summoner.Name}>";
 
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
@@ -62,17 +62,18 @@ namespace Server.Services
                         if(participant == null)
                         {
                             Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.Info.GameId}>");
-                            await _webHookService.Execute(builder, title,
-                                $"{summoner.Name}님이 {game.Info.GameMode} 모드 게임을 시작하셨습니다");
                             return;
                         }
 
                         var champion = _champions[participant.ChampionId];
 
-                        var message = $"{summoner.Name}님이 {champion.Name}(으)로 {game.Info.GameMode} 모드 게임을 시작하셨습니다";
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-                        await _webHookService.Execute(builder, title,
+                        await _webHookService.Execute(builder, 
+                            title,
                             $"{summoner.Name}님이 {champion.Name}(으)로 {game.Info.GameMode} 모드 게임을 시작하셨습니다",
+                            summoner.Name,
+                            $"https://www.op.gg/summoner/userName={summoner.Name}",
+                            DateTime.Now,
                             new List<string> { championImageUrl });
                     });
 
@@ -87,8 +88,6 @@ namespace Server.Services
                             if (participantIdentity == null)
                             {
                                 Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
-                                await _webHookService.Execute(builder, title,
-                                    $"{summoner.Name}님이 {match.Info.GameMode} 모드 게임을 종료하셨습니다");
                                 return;
                             }
 
@@ -96,8 +95,6 @@ namespace Server.Services
                             if (participantIdentity == null)
                             {
                                 Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
-                                await _webHookService.Execute(builder, title,
-                                    $"{summoner.Name}님이 {match.Info.GameMode} 모드 게임을 종료하셨습니다");
                                 return;
                             }
 
@@ -115,16 +112,26 @@ namespace Server.Services
                                 var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.Info.GameMode}모드 게임을 승리하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                                 var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
 
-                                await _webHookService.Execute(builder, title,
-                                    message, new List<string> { championImageUrl, winImageUrl });
+                                await _webHookService.Execute(builder, 
+                                    title,
+                                    message,
+                                    summoner.Name,
+                                    $"https://www.op.gg/summoner/userName={summoner.Name}",
+                                    DateTime.Now,
+                                    new List<string> { championImageUrl, winImageUrl });
                             }
                             else
                             {
                                 var message = $"{summoner.Name}님이 {champion.Name}(으)로 {playingGame.Info.GameMode}모드 게임을 패배하셨습니다. KDA[{kda}, {k}/{d}/{a}]";
                                 var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
 
-                                await _webHookService.Execute(builder, title,
-                                    message, new List<string> { championImageUrl, loseImageUrl });
+                                await _webHookService.Execute(builder, 
+                                    title,
+                                    message,
+                                    summoner.Name,
+                                    $"https://www.op.gg/summoner/userName={summoner.Name}",
+                                    DateTime.Now,
+                                    new List<string> { championImageUrl, loseImageUrl });
                             }
 
                             await _riotApiCrawler.RefreshLeagueEntries(summoner.Id, Region.Get(summoner.Region));
