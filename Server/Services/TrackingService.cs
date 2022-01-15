@@ -68,9 +68,9 @@ namespace Server.Services
                         var champion = _champions[participant.ChampionId];
 
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-                        await _webHookService.Execute(builder, 
-                            $"[시작] 소환사 '{summoner.Name}'",
-                            $"<챔피언:{champion.Name}, 게임모드:{game.Info.GameMode}>",
+                        await _webHookService.Execute(builder,
+                            $"[소환사|{summoner.Name}]",
+                            $"[시작] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{game.Info.GameMode})",
                             summoner.Name,
                             $"https://www.op.gg/summoner/userName={summoner.Name}",
                             DateTime.Now,
@@ -112,8 +112,8 @@ namespace Server.Services
                                 var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
 
                                 await _webHookService.Execute(builder,
-                                    $"[승리] 소환사 '{summoner.Name}'",
-                                    $"<챔피언:{champion.Name}, 게임모드:{playingGame.Info.GameMode}, KDA:{kda}, K:{k}/D:{d}/A:{a}>",
+                                    $"[소환사|{summoner.Name}]",
+                                    $"[승리] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameMode}) (KDA|{kda}, {k}/{d}/{a})",
                                     summoner.Name,
                                     $"https://www.op.gg/summoner/userName={summoner.Name}",
                                     DateTime.Now,
@@ -124,8 +124,8 @@ namespace Server.Services
                                 var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
 
                                 await _webHookService.Execute(builder,
-                                    $"[패배] 소환사 '{summoner.Name}'",
-                                    $"<챔피언:{champion.Name}, 게임모드:{playingGame.Info.GameMode}, KDA:{kda}, K:{k}/D:{d}/A:{a}>",
+                                    $"[소환사|{summoner.Name}]",
+                                    $"[패배] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameMode}) (KDA|{kda}, {k}/{d}/{a})",
                                     summoner.Name,
                                     $"https://www.op.gg/summoner/userName={summoner.Name}",
                                     DateTime.Now,
