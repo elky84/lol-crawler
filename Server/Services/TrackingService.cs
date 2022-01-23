@@ -21,15 +21,19 @@ namespace Server.Services
 
         private readonly WebHookService _webHookService;
 
+        private readonly SummonerService _summonerService;
+
         private Dictionary<long, LolCrawler.Models.Champion> _champions = new Dictionary<long, LolCrawler.Models.Champion>();
 
         private DateTime OldDate;
 
         public TrackingService(IConfiguration configuration,
+            SummonerService summonerService,
             MongoDbService mongoDbService,
             WebHookService webHookService,
             IHttpClientFactory httpClientFactory)
         {
+            _summonerService = summonerService;
             _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
             _webHookService = webHookService;
         }
@@ -53,7 +57,7 @@ namespace Server.Services
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-                var content = $"소환사 <{summoner.Name}>";
+                var summonerTitle = $"소환사 <{summoner.Name}>";
 
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
@@ -65,12 +69,23 @@ namespace Server.Services
                             return;
                         }
 
-                        var champion = _champions[participant.ChampionId];
+                        var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner { SummonerName = summoner.Name,
+                            Switch = summoner.Tracking, Region = summoner.Region});
 
+                        var champion = _champions[participant.ChampionId];
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
+
+                        var message = $"[시작] (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{game.Info.GameType}/{game.Info.GameMode})" +
+                                      $" (Team|{participant.TeamId})";
+
+                        foreach (var league in summonerDetail.LeagueEntries)
+                        {
+                            message += $"(League {league.QueueType}|{league.Tier}/{league.Rank}. {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {(league.Wins + league.Losses) / league.Losses * 100.0}%)";
+                        }
+
                         await _webHookService.Execute(builder,
-                            $"[소환사|{summoner.Name}]",
-                            $"[시작] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{game.Info.GameMode})",
+                            summonerTitle,
+                            message,
                             summoner.Name,
                             $"https://www.op.gg/summoner/userName={summoner.Name}",
                             DateTime.Now,
@@ -92,9 +107,9 @@ namespace Server.Services
                             }
 
                             var participant = match.Info.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
-                            if (participantIdentity == null)
+                            if (participant == null)
                             {
-                                Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
+                                Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
                                 return;
                             }
 
@@ -104,35 +119,35 @@ namespace Server.Services
                             var a = participant.Assists;
                             var kda = (k + a) / (float)d;
 
+                            var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner
+                            {
+                                SummonerName = summoner.Name,
+                                Switch = summoner.Tracking,
+                                Region = summoner.Region
+                            });
+
                             var champion = _champions[participant.ChampionId];
                             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                            if (win)
-                            {
-                                var winImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg";
+                            var message = $"[{(win ? "승리" : "패배")}] (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})" +
+                                $" (Team|{participant.TeamId})";
 
-                                await _webHookService.Execute(builder,
-                                    $"[소환사|{summoner.Name}]",
-                                    $"[승리] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameMode}) (KDA|{kda}, {k}/{d}/{a})",
-                                    summoner.Name,
-                                    $"https://www.op.gg/summoner/userName={summoner.Name}",
-                                    DateTime.Now,
-                                    new List<string> { championImageUrl, winImageUrl });
-                            }
-                            else
+                            foreach (var league in summonerDetail.LeagueEntries)
                             {
-                                var loseImageUrl = "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
-
-                                await _webHookService.Execute(builder,
-                                    $"[소환사|{summoner.Name}]",
-                                    $"[패배] (소환사|{summoner.Name}) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameMode}) (KDA|{kda}, {k}/{d}/{a})",
-                                    summoner.Name,
-                                    $"https://www.op.gg/summoner/userName={summoner.Name}",
-                                    DateTime.Now,
-                                    new List<string> { championImageUrl, loseImageUrl });
+                                message += $"(League {league.QueueType}|{league.Tier}/{league.Rank}. {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {(league.Wins+league.Losses)/league.Losses * 100.0}%)";
                             }
 
-                            await _riotApiCrawler.RefreshLeagueEntries(summoner.Id, Region.Get(summoner.Region));
+                            var resultImageUrl = win ? 
+                                                "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
+                                                "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
+
+                            await _webHookService.Execute(builder,
+                                summonerTitle,
+                                message,
+                                summoner.Name,
+                                $"https://www.op.gg/summoner/userName={summoner.Name}",
+                                DateTime.Now,
+                                new List<string> { championImageUrl, resultImageUrl });
                         });
                 }
             }

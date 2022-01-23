@@ -8,6 +8,6 @@ namespace Server.Protocols.Response
     {
         public Common.Summoner Data { get; set; }
 
-        public List<Common.LeagueEntry> LeagueEntries { get; set; }
+        public List<LeagueEntry> LeagueEntries { get; set; }
     }
 }

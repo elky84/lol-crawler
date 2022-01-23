@@ -57,7 +57,7 @@ namespace LolCrawler.Api
             return this;
         }
 
-        private FilterDefinition<Summoner> SummonerFilter(string summonerName, Region region)
+        private static FilterDefinition<Summoner> SummonerFilter(string summonerName, Region region)
         {
             return Builders<Summoner>.Filter.Eq(x => x.NameLower, summonerName.ToLower()) &
                     Builders<Summoner>.Filter.Eq(x => x.Region, region.Key);
@@ -76,6 +76,30 @@ namespace LolCrawler.Api
             }
         }
 
+        public async Task<Summoner> RefreshSummoner(string summonerName, Region region, bool tracking)
+        {
+            var summoner = await RiotApi.SummonerV4.GetBySummonerNameAsync(region, summonerName);
+            if (summoner == null)
+            {
+                return null;
+            }
+
+            await RefreshLeagueEntries(summoner.Id, region);
+
+            return await MongoDbSummoner.UpsertAsync(SummonerFilter(summonerName, region),
+                new Summoner
+                {
+                    Name = summoner.Name,
+                    NameLower = summoner.Name.ToLower(),
+                    Level = summoner.SummonerLevel,
+                    AccountId = summoner.AccountId,
+                    Puuid = summoner.Puuid,
+                    Region = region.Key,
+                    SummonerId = summoner.Id,
+                    Tracking = tracking
+                });
+        }
+
         public async Task<Summoner> CreateSummerByName(string summonerName, Region region, bool tracking)
         {
             try
@@ -86,26 +110,7 @@ namespace LolCrawler.Api
                     return origin;
                 }
 
-                var summoner = await RiotApi.SummonerV4.GetBySummonerNameAsync(region, summonerName);
-                if (summoner == null)
-                {
-                    return null;
-                }
-
-                await RefreshLeagueEntries(summoner.Id, region);
-
-                return await MongoDbSummoner.UpsertAsync(SummonerFilter(summonerName, region),
-                    new Summoner
-                    {
-                        Name = summoner.Name,
-                        NameLower = summoner.Name.ToLower(),
-                        Level = summoner.SummonerLevel,
-                        AccountId = summoner.AccountId,
-                        Puuid = summoner.Puuid,
-                        Region = region.Key,
-                        SummonerId = summoner.Id,
-                        Tracking = tracking
-                    });
+                return await RefreshSummoner(summonerName, region, tracking);
             }
             catch (Exception ex)
             {
@@ -113,6 +118,8 @@ namespace LolCrawler.Api
                 return null;
             }
         }
+
+
 
         public async Task<List<LeagueEntry>> GetLeagueEntries(Summoner summoner)
         {
@@ -148,7 +155,11 @@ namespace LolCrawler.Api
         {
             try
             {
-                var leagueEntires = (await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId)).Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>()).ToList();
+                var leagueEntriesOrigin = await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId);
+                var leagueEntires = leagueEntriesOrigin
+                    .Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>())
+                    .ToList();
+
                 foreach (var leagueEntry in leagueEntires)
                 {
                     await MongoDbLeagueEntry.UpsertAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, leagueEntry.SummonerId) &

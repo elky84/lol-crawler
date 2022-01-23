@@ -24,58 +24,58 @@ namespace Server.Services
 
         public async Task<Protocols.Response.Summoner> Get(Protocols.Request.Summoner summoner)
         {
-            var Data = await _riotApiCrawler.GetSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
-            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
+            var data = await _riotApiCrawler.GetSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
+            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = EzAspDotNet.Code.ResultCode.Success,
-                Data = Data?.ToProtocol(),
+                Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Create(Protocols.Request.Summoner summoner)
         {
-            var Data = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
-            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(Data);
+            var data = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var leagueEntries = await _riotApiCrawler.GetLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
                 ResultCode = EzAspDotNet.Code.ResultCode.Success,
-                Data = Data?.ToProtocol(),
+                Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Refresh(Protocols.Request.Summoner summoner)
         {
-            var Data = await _riotApiCrawler.CreateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
-            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(Data);
+            var data = await _riotApiCrawler.RefreshSummoner(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = Code.ResultCode.Success,
-                Data = Data?.ToProtocol(),
+                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
         }
 
         public async Task<Protocols.Response.Summoner> Update(Protocols.Request.Summoner summoner)
         {
-            var Data = await _riotApiCrawler.UpdateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
+            var data = await _riotApiCrawler.UpdateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
             return new Protocols.Response.Summoner
             {
-                ResultCode = Code.ResultCode.Success,
-                Data = Data?.ToProtocol()
+                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                Data = data?.ToProtocol()
             };
         }
 
         public async Task<Protocols.Response.Summoner> Delete(Protocols.Request.Summoner summoner)
         {
-            var Data = await _riotApiCrawler.DeleteSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
-            await _riotApiCrawler.DeleteLeagueEntries(Data);
+            var data = await _riotApiCrawler.DeleteSummerByName(summoner.SummonerName, Region.Get(summoner.Region));
+            await _riotApiCrawler.DeleteLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = Code.ResultCode.Success,
-                Data = Data?.ToProtocol()
+                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                Data = data?.ToProtocol()
             };
         }
     }
