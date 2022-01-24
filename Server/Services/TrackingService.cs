@@ -75,12 +75,11 @@ namespace Server.Services
                         var champion = _champions[participant.ChampionId];
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                        var message = $"[시작] (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{game.Info.GameType}/{game.Info.GameMode})" +
-                                      $" (Team|{participant.TeamId})";
+                        var message = $"시작 (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{game.Info.GameType}/{game.Info.GameMode})";
 
                         foreach (var league in summonerDetail.LeagueEntries)
                         {
-                            message += $"(League {league.QueueType}|{league.Tier}/{league.Rank}. {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {(league.Wins + league.Losses) / league.Losses * 100.0}%)";
+                            message += $"(League {league.QueueType}|{(string.IsNullOrEmpty(league.Tier) ? league.Rank : league.Tier + "/" + league.Rank)} {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {league.Wins / (league.Wins + league.Losses) * 100.0}%)";
                         }
 
                         await _webHookService.Execute(builder,
@@ -129,12 +128,11 @@ namespace Server.Services
                             var champion = _champions[participant.ChampionId];
                             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                            var message = $"[{(win ? "승리" : "패배")}] (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})" +
-                                $" (Team|{participant.TeamId})";
+                            var message = $"{(win ? "승리" : "패배")} (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})";
 
                             foreach (var league in summonerDetail.LeagueEntries)
                             {
-                                message += $"(League {league.QueueType}|{league.Tier}/{league.Rank}. {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {(league.Wins+league.Losses)/league.Losses * 100.0}%)";
+                                message += $"(League {league.QueueType}|{(string.IsNullOrEmpty(league.Tier) ? league.Rank : league.Tier + "/" + league.Rank)} {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {league.Wins / (league.Wins + league.Losses) * 100.0}%)";
                             }
 
                             var resultImageUrl = win ? 

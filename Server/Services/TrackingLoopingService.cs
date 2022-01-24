@@ -35,7 +35,7 @@ namespace Server.Services
 
         protected void DoWork()
         {
-            _trackingService.ExecuteBackground().Wait();
+            _ = _trackingService.ExecuteBackground();
         }
     }
 }
