@@ -12,6 +12,8 @@ using System;
 using Serilog;
 using EzAspDotNet.Services;
 using MongoDB.Driver;
+using System.Web;
+using System.Text;
 
 namespace Server.Services
 {
@@ -86,7 +88,7 @@ namespace Server.Services
                             summonerTitle,
                             message,
                             summoner.Name,
-                            $"https://www.op.gg/summoner/userName={summoner.Name}",
+                            $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
                             DateTime.Now,
                             new List<string> { championImageUrl });
                     });
@@ -143,7 +145,7 @@ namespace Server.Services
                                 summonerTitle,
                                 message,
                                 summoner.Name,
-                                $"https://www.op.gg/summoner/userName={summoner.Name}",
+                                $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
                                 DateTime.Now,
                                 new List<string> { championImageUrl, resultImageUrl });
                         });
