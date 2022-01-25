@@ -59,7 +59,7 @@ namespace Server.Services
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
                 var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-                var summonerTitle = $"소환사 <{summoner.Name}>";
+                var summonerTitle = $"소환사 `{summoner.Name}`";
 
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
@@ -77,12 +77,9 @@ namespace Server.Services
                         var champion = _champions[participant.ChampionId];
                         var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                        var message = $"시작 (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{game.Info.GameType}/{game.Info.GameMode})";
+                        var message = $"`게임 시작` (소환사|Lv.{summoner.Level} `{summoner.Name}`)\n (챔피언|{champion.Name})\n (게임모드|{game.Info.GameType}/{game.Info.GameMode})\n";
 
-                        foreach (var league in summonerDetail.LeagueEntries)
-                        {
-                            message += $"(League {league.QueueType}|{(string.IsNullOrEmpty(league.Tier) ? league.Rank : league.Tier + "/" + league.Rank)} {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {league.Wins / (league.Wins + league.Losses) * 100.0}%)";
-                        }
+                        summonerDetail.LeagueEntries.ForEach(x => message += x.ToString());
 
                         await _webHookService.Execute(builder,
                             summonerTitle,
@@ -130,12 +127,9 @@ namespace Server.Services
                             var champion = _champions[participant.ChampionId];
                             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                            var message = $"{(win ? "승리" : "패배")} (소환사|Lv.{summoner.Level} `{summoner.Name}`) (챔피언|{champion.Name}) (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})";
+                            var message = $"`{(win ? "승리" : "패배")}` (소환사|Lv.{summoner.Level} `{summoner.Name}`)\n (챔피언|{champion.Name})\n (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})\n";
 
-                            foreach (var league in summonerDetail.LeagueEntries)
-                            {
-                                message += $"(League {league.QueueType}|{(string.IsNullOrEmpty(league.Tier) ? league.Rank : league.Tier + "/" + league.Rank)} {league.LeaguePoints}, WinLose {league.Wins}/{league.Losses} WinRate {league.Wins / (league.Wins + league.Losses) * 100.0}%)";
-                            }
+                            summonerDetail.LeagueEntries.ForEach(x => message += x.ToString());
 
                             var resultImageUrl = win ? 
                                                 "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :

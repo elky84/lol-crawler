@@ -43,6 +43,18 @@ namespace LolCrawler.Api
             MongoDbChampion = new MongoDbUtil<Models.Champion>(mongoDatabase);
             MongoDbLeagueEntry = new MongoDbUtil<LeagueEntry>(mongoDatabase);
 
+            MongoDbCurrentGame.Collection.Indexes.CreateMany(new List<CreateIndexModel<CurrentGame>>
+            {
+                new CreateIndexModel<CurrentGame>(Builders<CurrentGame>.IndexKeys.Ascending(x => x.Info.GameId),
+                               new CreateIndexOptions { Unique = true })
+            });
+
+            MongoDbMatch.Collection.Indexes.CreateMany(new List<CreateIndexModel<Match>>
+            {
+                new CreateIndexModel<Match>(Builders<Match>.IndexKeys.Ascending(x => x.Info.GameId),
+                               new CreateIndexOptions { Unique = true })
+            });
+
             HttpClient = httpClient;
         }
 

@@ -24,5 +24,10 @@ namespace Server.Protocols.Common
         public string SummonerId { get; set; }
         public string LeagueId { get; set; }
         public string Rank { get; set; }
+
+        public override string ToString()
+        {
+            return $"(리그 {QueueType}|{(string.IsNullOrEmpty(Tier) ? Rank : Tier + "/" + Rank)} {LeaguePoints}, WinLose {Wins}/{Losses} WinRate {(double)Wins / ((double)Wins + (double)Losses) * 100.0}%";
+        }
     }
 }

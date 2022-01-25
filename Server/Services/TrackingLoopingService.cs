@@ -23,7 +23,7 @@ namespace Server.Services
                 {
                     DoWork();
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     e.ExceptionLog();
                 }
