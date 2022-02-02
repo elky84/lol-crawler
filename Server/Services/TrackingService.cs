@@ -14,6 +14,8 @@ using EzAspDotNet.Services;
 using MongoDB.Driver;
 using System.Web;
 using System.Text;
+using EzAspDotNet.Util;
+using LolCrawler.Models;
 
 namespace Server.Services
 {
@@ -49,6 +51,110 @@ namespace Server.Services
             }
         }
 
+        private async Task SendWebHook(Summoner summoner,
+            LolCrawler.Models.Champion champion,
+            CurrentGame game,
+            MingweiSamuel.Camille.MatchV5.Participant participant)
+        {
+            var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
+
+            var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner
+            {
+                SummonerName = summoner.Name,
+                Switch = summoner.Tracking,
+                Region = summoner.Region
+            });
+
+            var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
+            var summonerTitle = $"소환사 `{summoner.Name}`";
+
+            var webHook = new EzAspDotNet.Notification.Data.WebHook
+            {
+                Title = summonerTitle,
+                Author = summoner.Name,
+                AuthorLink = $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
+                TimeStamp = DateTime.Now.ToTimeStamp(),
+                ImageUrl = championImageUrl,
+                AuthorIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
+                Footer = summoner.Name,
+                FooterIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
+            };
+
+            if(participant == null)
+            {
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = "게임",
+                    Value = $"시작"
+                });
+            }
+            else
+            {
+                var win = participant.Win;
+                var k = participant.Kills;
+                var d = participant.Deaths;
+                var a = participant.Assists;
+                var kda = (k + a) / (float)d;
+
+                webHook.ImageUrl = win ?
+                    "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
+                    "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
+
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = "결과",
+                    Value = $"{(win ? "승리" : "패배")}"
+                });
+
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = "KDA",
+                    Value = $"{k}/{d}/{a}, KDA:{kda}"
+                });
+            }
+
+            webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+            {
+                Title = "소환사",
+                Value = $"Lv.{summoner.Level} `{summoner.Name}`"
+            });
+
+            webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+            {
+                Title = "챔피언",
+                Value = champion.Name
+            });
+
+            webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+            {
+                Title = "게임모드",
+                Value = $"{game.Info.GameType}/{game.Info.GameMode}"
+            });
+
+            foreach (var leagueEntry in summonerDetail.LeagueEntries)
+            {
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = $"리그 {leagueEntry.QueueType}",
+                    Value = $"{(string.IsNullOrEmpty(leagueEntry.Tier) ? leagueEntry.Rank : leagueEntry.Tier + "/" + leagueEntry.Rank)}"
+                });
+
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = $"승패",
+                    Value = $"{leagueEntry.Wins}/{leagueEntry.Losses}"
+                });
+
+                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
+                {
+                    Title = $"승률",
+                    Value = $"{(double)leagueEntry.Wins / ((double)leagueEntry.Wins + (double)leagueEntry.Losses) * 100.0}%"
+                });
+            }
+
+            await _webHookService.Execute(builder, webHook);
+        }
+
         public async Task ExecuteBackground()
         {
             if (OldDate.Date != DateTime.Now.Date)
@@ -58,9 +164,6 @@ namespace Server.Services
 
             foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
             {
-                var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-                var summonerTitle = $"소환사 `{summoner.Name}`";
-
                 var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
                     async (game) =>
                     {
@@ -71,23 +174,8 @@ namespace Server.Services
                             return;
                         }
 
-                        var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner { SummonerName = summoner.Name,
-                            Switch = summoner.Tracking, Region = summoner.Region});
-
                         var champion = _champions[participant.ChampionId];
-                        var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-
-                        var message = $"`게임 시작` (소환사|Lv.{summoner.Level} `{summoner.Name}`)\n (챔피언|{champion.Name})\n (게임모드|{game.Info.GameType}/{game.Info.GameMode})\n";
-
-                        summonerDetail.LeagueEntries.ForEach(x => message += x.ToString());
-
-                        await _webHookService.Execute(builder,
-                            summonerTitle,
-                            message,
-                            summoner.Name,
-                            $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
-                            DateTime.Now,
-                            new List<string> { championImageUrl });
+                        await SendWebHook(summoner, champion, game, null);
                     });
 
                 if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
@@ -111,37 +199,9 @@ namespace Server.Services
                                 return;
                             }
 
-                            var win = participant.Win;
-                            var k = participant.Kills;
-                            var d = participant.Deaths;
-                            var a = participant.Assists;
-                            var kda = (k + a) / (float)d;
-
-                            var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner
-                            {
-                                SummonerName = summoner.Name,
-                                Switch = summoner.Tracking,
-                                Region = summoner.Region
-                            });
-
                             var champion = _champions[participant.ChampionId];
-                            var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
 
-                            var message = $"`{(win ? "승리" : "패배")}` (소환사|Lv.{summoner.Level} `{summoner.Name}`)\n (챔피언|{champion.Name})\n (게임모드|{playingGame.Info.GameType}/{playingGame.Info.GameMode})\n";
-
-                            summonerDetail.LeagueEntries.ForEach(x => message += x.ToString());
-
-                            var resultImageUrl = win ? 
-                                                "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
-                                                "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
-
-                            await _webHookService.Execute(builder,
-                                summonerTitle,
-                                message,
-                                summoner.Name,
-                                $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
-                                DateTime.Now,
-                                new List<string> { championImageUrl, resultImageUrl });
+                            await SendWebHook(summoner, champion, playingGame, participant);
                         });
                 }
             }
