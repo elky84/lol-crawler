@@ -66,17 +66,16 @@ namespace Server.Services
             });
 
             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-            var summonerTitle = $"소환사 `{summoner.Name}`";
 
             var webHook = new EzAspDotNet.Notification.Data.WebHook
             {
-                Title = summonerTitle,
+                Title = $"`{summoner.Name}`",
                 Author = summoner.Name,
                 AuthorLink = $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
                 TimeStamp = DateTime.Now.ToTimeStamp(),
                 ImageUrl = championImageUrl,
                 AuthorIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
-                Footer = summoner.Name,
+                Footer = $"Lv.{summoner.Level} `{summoner.Name}`",
                 FooterIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
             };
 
@@ -115,12 +114,6 @@ namespace Server.Services
 
             webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
             {
-                Title = "소환사",
-                Value = $"Lv.{summoner.Level} `{summoner.Name}`"
-            });
-
-            webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
-            {
                 Title = "챔피언",
                 Value = champion.Name
             });
@@ -131,11 +124,11 @@ namespace Server.Services
                 Value = $"{game.Info.GameType}/{game.Info.GameMode}"
             });
 
-            foreach (var leagueEntry in summonerDetail.LeagueEntries)
+            foreach (var leagueEntry in summonerDetail.LeagueEntries.Where(x => !string.IsNullOrEmpty(x.Rank) || !string.IsNullOrEmpty(x.Tier)))
             {
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
-                    Title = $"리그 {leagueEntry.QueueType}",
+                    Title = $"리그 <{leagueEntry.QueueType}>",
                     Value = $"{(string.IsNullOrEmpty(leagueEntry.Tier) ? leagueEntry.Rank : leagueEntry.Tier + "/" + leagueEntry.Rank)}"
                 });
 
