@@ -66,7 +66,6 @@ namespace Server.Services
             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
             var webHook = new EzAspDotNet.Notification.Data.WebHook
             {
-                Title = $"`{summoner.Name}`",
                 Author = summoner.Name,
                 AuthorLink = $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
                 TimeStamp = DateTime.UtcNow.ToTimeStamp(),
@@ -80,11 +79,7 @@ namespace Server.Services
 
             if (participant == null)
             {
-                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
-                {
-                    Title = "게임",
-                    Value = $"시작"
-                });
+                webHook.Title = $"게임 시작 `{summoner.Name}`";
             }
             else
             {
@@ -98,17 +93,10 @@ namespace Server.Services
                 {
                     ImageUrl = win ?
                                "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
-                               "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg",
-                    TimeStamp = DateTime.Now.ToTimeStamp(),
-                    Footer = webHook.Footer,
-                    FooterIcon = webHook.FooterIcon,
+                               "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg"
                 });
 
-                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
-                {
-                    Title = "결과",
-                    Value = $"{(win ? "승리" : "패배")}"
-                });
+                webHook.Title = $"게임 {(win ? "승리" : "패배")} `{summoner.Name}`";
 
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
@@ -139,13 +127,7 @@ namespace Server.Services
 
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
-                    Title = $"승패",
-                    Value = $"{leagueEntry.Wins}/{leagueEntry.Losses}"
-                });
-
-                webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
-                {
-                    Title = $"승률",
+                    Title = $"승{leagueEntry.Wins} 패{leagueEntry.Losses} - 승률",
                     Value = $"{(double)leagueEntry.Wins / ((double)leagueEntry.Wins + (double)leagueEntry.Losses) * 100.0}%"
                 });
             }
