@@ -10,6 +10,7 @@ using Server.Services;
 using MongoDbWebUtil.Services;
 using EzAspDotNet.Services;
 using EzAspDotNet.Exception;
+using System;
 
 namespace Server
 {
@@ -17,8 +18,7 @@ namespace Server
     {
         public Startup(IConfiguration configuration)
         {
-            System.Text.EncodingProvider provider = System.Text.CodePagesEncodingProvider.Instance;
-            Encoding.RegisterProvider(provider);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Error()
@@ -26,6 +26,9 @@ namespace Server
                 .CreateLogger();
 
             Configuration = configuration;
+
+            using var log = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+            log.Information($"Local TimeZone:{TimeZoneInfo.Local}");
         }
 
         public IConfiguration Configuration { get; }

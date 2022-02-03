@@ -56,8 +56,6 @@ namespace Server.Services
             CurrentGame game,
             MingweiSamuel.Camille.MatchV5.Participant participant)
         {
-            var builder = Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty;
-
             var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner
             {
                 SummonerName = summoner.Name,
@@ -66,20 +64,21 @@ namespace Server.Services
             });
 
             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
-
             var webHook = new EzAspDotNet.Notification.Data.WebHook
             {
                 Title = $"`{summoner.Name}`",
                 Author = summoner.Name,
                 AuthorLink = $"https://www.op.gg/summoner/userName={HttpUtility.UrlEncode(summoner.Name, Encoding.UTF8)}",
-                TimeStamp = DateTime.Now.ToTimeStamp(),
+                TimeStamp = DateTime.UtcNow.ToTimeStamp(),
                 ImageUrl = championImageUrl,
                 AuthorIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
                 Footer = $"Lv.{summoner.Level} `{summoner.Name}`",
                 FooterIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
             };
 
-            if(participant == null)
+            var webHooks = new List<EzAspDotNet.Notification.Data.WebHook> { webHook };
+
+            if (participant == null)
             {
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
@@ -95,9 +94,15 @@ namespace Server.Services
                 var a = participant.Assists;
                 var kda = (k + a) / (float)d;
 
-                webHook.ImageUrl = win ?
-                    "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
-                    "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg";
+                webHooks.Add(new EzAspDotNet.Notification.Data.WebHook
+                {
+                    ImageUrl = win ?
+                               "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9916f54385211.5959b34077df7.jpg" :
+                               "https://mir-s3-cdn-cf.behance.net/project_modules/1400/c9ccce54385211.5959b3407819c.jpg",
+                    TimeStamp = DateTime.Now.ToTimeStamp(),
+                    Footer = webHook.Footer,
+                    FooterIcon = webHook.FooterIcon,
+                });
 
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
@@ -145,7 +150,7 @@ namespace Server.Services
                 });
             }
 
-            await _webHookService.Execute(builder, webHook);
+            await _webHookService.Execute(Builders<EzAspDotNet.Notification.Models.Notification>.Filter.Empty, webHooks);
         }
 
         public async Task ExecuteBackground()
