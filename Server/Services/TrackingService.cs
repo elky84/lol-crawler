@@ -122,7 +122,7 @@ namespace Server.Services
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
                     Title = $"리그 <{leagueEntry.QueueType}>",
-                    Value = $"{(string.IsNullOrEmpty(leagueEntry.Tier) ? leagueEntry.Rank : leagueEntry.Tier + "/" + leagueEntry.Rank)}"
+                    Value = $"`{leagueEntry.Tier} {leagueEntry.Rank}` {leagueEntry.LeaguePoints} Lp"
                 });
 
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
