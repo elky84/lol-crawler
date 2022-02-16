@@ -7,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Server.Services;
-using MongoDbWebUtil.Services;
 using EzAspDotNet.Services;
 using EzAspDotNet.Exception;
 using System;

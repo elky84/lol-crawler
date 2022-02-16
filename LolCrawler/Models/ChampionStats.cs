@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
-using MongoDbWebUtil.Models;
+using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {

@@ -1,6 +1,6 @@
 ﻿using MingweiSamuel.Camille.MatchV5;
 using System.Text.Json.Serialization;
-using MongoDbWebUtil.Models;
+using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {

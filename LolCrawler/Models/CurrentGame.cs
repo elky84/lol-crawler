@@ -2,7 +2,7 @@
 using MingweiSamuel.Camille.SpectatorV4;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDbWebUtil.Models;
+using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {

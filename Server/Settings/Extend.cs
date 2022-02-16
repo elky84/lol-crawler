@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MongoDbWebUtil.Settings
+namespace EzAspDotNet.Settings
 {
     public static class Extend
     {

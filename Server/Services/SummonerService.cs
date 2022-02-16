@@ -1,13 +1,13 @@
 ﻿using Server.Models;
 using System.Threading.Tasks;
-using MongoDbWebUtil.Services;
+using EzAspDotNet.Services;
 using LolCrawler.Api;
 using MingweiSamuel.Camille.Enums;
 using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using MongoDbWebUtil.Settings;
+using EzAspDotNet.Settings;
 
 namespace Server.Services
 {

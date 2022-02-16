@@ -1,5 +1,5 @@
 ﻿using LolCrawler.Models;
-using MongoDbWebUtil.Models;
+using EzAspDotNet.Models;
 using Server.Protocols.Common;
 
 namespace Server.Models
