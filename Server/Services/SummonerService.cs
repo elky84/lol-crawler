@@ -28,7 +28,7 @@ namespace Server.Services
             var leagueEntries = await _riotApiCrawler.GetLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
@@ -40,7 +40,7 @@ namespace Server.Services
             var leagueEntries = await _riotApiCrawler.GetLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
@@ -52,7 +52,7 @@ namespace Server.Services
             var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = data?.ToProtocol(),
                 LeagueEntries = leagueEntries.ConvertAll(x => x.ToProtocol())
             };
@@ -63,7 +63,7 @@ namespace Server.Services
             var data = await _riotApiCrawler.UpdateSummerByName(summoner.SummonerName, Region.Get(summoner.Region), summoner.Switch.GetValueOrDefault(false));
             return new Protocols.Response.Summoner
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = data?.ToProtocol()
             };
         }
@@ -74,7 +74,7 @@ namespace Server.Services
             await _riotApiCrawler.DeleteLeagueEntries(data);
             return new Protocols.Response.Summoner
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = data?.ToProtocol()
             };
         }

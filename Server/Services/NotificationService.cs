@@ -38,7 +38,7 @@ namespace Server.Services
 
             return new Protocols.Response.Notification
             {
-                ResultCode = EzAspDotNet.Code.ResultCode.Success,
+                ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
                 Data = created?.ToProtocol()
             };
 
