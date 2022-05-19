@@ -1,3 +1,4 @@
+using AutoMapper;
 using EzAspDotNet.Exception;
 using EzAspDotNet.Services;
 using EzAspDotNet.StartUp;
@@ -33,6 +34,23 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            EzAspDotNet.Models.MapperUtil.Initialize(
+                new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<EzAspDotNet.Notification.Models.Notification, Protocols.Common.Notification>();
+                    cfg.CreateMap<Protocols.Common.Notification, EzAspDotNet.Notification.Models.Notification >();
+
+                    cfg.CreateMap<LolCrawler.Models.Summoner, Protocols.Common.Summoner>();
+                    cfg.CreateMap<Protocols.Common.Summoner, LolCrawler.Models.Summoner>();
+
+                    cfg.CreateMap<LolCrawler.Models.LeagueEntry, Protocols.Common.LeagueEntry>();
+                    cfg.CreateMap<Protocols.Common.LeagueEntry, LolCrawler.Models.LeagueEntry >();
+
+                    cfg.CreateMap<LolCrawler.Models.MiniSeries, Protocols.Common.MiniSeries>();
+                    cfg.CreateMap<Protocols.Common.MiniSeries, LolCrawler.Models.MiniSeries >();
+                })
+            );
+
             services.CommonConfigureServices();
 
             services.AddHttpClient();
