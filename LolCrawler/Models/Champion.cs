@@ -1,10 +1,6 @@
-﻿using MingweiSamuel.Camille.Enums;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using EzMongoDb.Models;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {

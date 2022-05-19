@@ -2,7 +2,7 @@
 using EzAspDotNet.Models;
 using EzAspDotNet.Notification.Models;
 using EzAspDotNet.Services;
-using EzAspDotNet.Util;
+using EzMongoDb.Util;
 using MongoDB.Driver;
 using Server.Code;
 using System.Collections.Generic;

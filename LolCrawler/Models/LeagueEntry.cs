@@ -1,7 +1,5 @@
-﻿using System;
+﻿using EzMongoDb.Models;
 using System.Collections.Generic;
-using System.Text;
-using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {

@@ -1,4 +1,7 @@
-﻿using LolCrawler.Code;
+﻿using EzAspDotNet.HttpClient;
+using EzAspDotNet.Util;
+using EzMongoDb.Util;
+using LolCrawler.Code;
 using LolCrawler.Models;
 using LolCrawler.Protocols;
 using MingweiSamuel.Camille;
@@ -11,8 +14,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using EzAspDotNet.Util;
-using EzAspDotNet.HttpClient;
 
 namespace LolCrawler.Api
 {
@@ -246,7 +247,7 @@ namespace LolCrawler.Api
                 }
 
                 var origin = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.Info.GameId, currentGame.GameId));
-                if(origin != null)
+                if (origin != null)
                 {
                     return origin;
                 }
@@ -299,7 +300,7 @@ namespace LolCrawler.Api
                 var matchRegion = MatchRegion.FromRegion(region);
                 var matchIds = await RiotApi.MatchV5.GetMatchIdsByPUUIDAsync(matchRegion, summoner.Puuid);
                 List<Match> matches = new();
-                foreach(var matchId in matchIds)
+                foreach (var matchId in matchIds)
                 {
                     // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
                     var matchData = await RiotApi.MatchV5.GetMatchAsync(matchRegion, matchId);
@@ -313,7 +314,7 @@ namespace LolCrawler.Api
                         matchData.ConvertTo<Match, MingweiSamuel.Camille.MatchV5.Match>(),
                         (match) =>
                         {
-                            if( match.Info.GameId == gameId)
+                            if (match.Info.GameId == gameId)
                             {
                                 action?.Invoke(match);
                             }
