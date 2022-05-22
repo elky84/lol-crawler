@@ -37,17 +37,19 @@ namespace Server
             EzAspDotNet.Models.MapperUtil.Initialize(
                 new MapperConfiguration(cfg =>
                 {
-                    cfg.CreateMap<EzAspDotNet.Notification.Models.Notification, Protocols.Common.Notification>();
-                    cfg.CreateMap<Protocols.Common.Notification, EzAspDotNet.Notification.Models.Notification >();
+                    cfg.AllowNullDestinationValues = true;
 
-                    cfg.CreateMap<LolCrawler.Models.Summoner, Protocols.Common.Summoner>();
-                    cfg.CreateMap<Protocols.Common.Summoner, LolCrawler.Models.Summoner>();
+                    cfg.CreateMap<EzAspDotNet.Notification.Models.Notification, Protocols.Common.Notification>(MemberList.None);
+                    cfg.CreateMap<Protocols.Common.Notification, EzAspDotNet.Notification.Models.Notification >(MemberList.None);
 
-                    cfg.CreateMap<LolCrawler.Models.LeagueEntry, Protocols.Common.LeagueEntry>();
-                    cfg.CreateMap<Protocols.Common.LeagueEntry, LolCrawler.Models.LeagueEntry >();
+                    cfg.CreateMap<LolCrawler.Models.Summoner, Protocols.Common.Summoner>(MemberList.None);
+                    cfg.CreateMap<Protocols.Common.Summoner, LolCrawler.Models.Summoner>(MemberList.None);
 
-                    cfg.CreateMap<LolCrawler.Models.MiniSeries, Protocols.Common.MiniSeries>();
-                    cfg.CreateMap<Protocols.Common.MiniSeries, LolCrawler.Models.MiniSeries >();
+                    cfg.CreateMap<LolCrawler.Models.LeagueEntry, Protocols.Common.LeagueEntry>(MemberList.None);
+                    cfg.CreateMap<Protocols.Common.LeagueEntry, LolCrawler.Models.LeagueEntry >(MemberList.None);
+
+                    cfg.CreateMap<LolCrawler.Models.MiniSeries, Protocols.Common.MiniSeries>(MemberList.None);
+                    cfg.CreateMap<Protocols.Common.MiniSeries, LolCrawler.Models.MiniSeries >(MemberList.None);
                 })
             );
 
