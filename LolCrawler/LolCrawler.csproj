@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EzAspDotnet" Version="1.0.46" />
-    <PackageReference Include="MingweiSamuel.Camille" Version="2.9.1-nightly-2022-02-11-b5cf263949" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="EzAspDotnet" Version="1.0.48" />
+		<PackageReference Include="MingweiSamuel.Camille" Version="2.9.1-nightly-2022-02-11-b5cf263949" />
+	</ItemGroup>
 </Project>
