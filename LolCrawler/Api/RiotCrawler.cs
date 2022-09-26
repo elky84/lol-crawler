@@ -1,5 +1,5 @@
 ﻿using EzAspDotNet.HttpClient;
-using EzAspDotNet.Util;
+using EzAspDotNet.Models;
 using EzMongoDb.Util;
 using LolCrawler.Code;
 using LolCrawler.Models;
@@ -45,13 +45,13 @@ namespace LolCrawler.Api
 
             MongoDbCurrentGame.Collection.Indexes.CreateMany(new List<CreateIndexModel<CurrentGame>>
             {
-                new CreateIndexModel<CurrentGame>(Builders<CurrentGame>.IndexKeys.Ascending(x => x.Info.GameId),
+                new CreateIndexModel<CurrentGame>(Builders<CurrentGame>.IndexKeys.Ascending(x => x.GameId),
                                new CreateIndexOptions { Unique = true })
             });
 
             MongoDbMatch.Collection.Indexes.CreateMany(new List<CreateIndexModel<Match>>
             {
-                new CreateIndexModel<Match>(Builders<Match>.IndexKeys.Ascending(x => x.Info.GameId),
+                new CreateIndexModel<Match>(Builders<Match>.IndexKeys.Ascending(x => x.GameId),
                                new CreateIndexOptions { Unique = true })
             });
 
@@ -169,7 +169,7 @@ namespace LolCrawler.Api
             {
                 var leagueEntriesOrigin = await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId);
                 var leagueEntires = leagueEntriesOrigin
-                    .Select(x => x.ConvertTo<LeagueEntry, MingweiSamuel.Camille.LeagueV4.LeagueEntry>())
+                    .Select(x => MapperUtil.Map<LeagueEntry>(x))
                     .ToList();
 
                 foreach (var leagueEntry in leagueEntires)
@@ -233,7 +233,7 @@ namespace LolCrawler.Api
             {
                 if (summoner.TrackingGameId.HasValue)
                 {
-                    var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.Info.GameId, summoner.TrackingGameId.GetValueOrDefault()));
+                    var playingGame = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, summoner.TrackingGameId.GetValueOrDefault()));
                     if (playingGame != null)
                     {
                         return playingGame;
@@ -246,16 +246,16 @@ namespace LolCrawler.Api
                     return null;
                 }
 
-                var origin = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.Info.GameId, currentGame.GameId));
+                var origin = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, currentGame.GameId));
                 if (origin != null)
                 {
                     return origin;
                 }
 
-                var newCurrentGame = new CurrentGame { Info = currentGame };
+                var newCurrentGame = new CurrentGame { GameId = currentGame.GameId, Info = currentGame };
 
-                summoner.TrackingGameId = newCurrentGame.Info.GameId;
-                await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
+                summoner.TrackingGameId = newCurrentGame.GameId;
+                var result = await MongoDbSummoner.UpdateAsync(summoner.Id, summoner);
 
                 var newDbGame = await MongoDbCurrentGame.CreateAsync(newCurrentGame);
 
@@ -291,7 +291,8 @@ namespace LolCrawler.Api
         {
             try
             {
-                var match = await MongoDbMatch.FindOneAsync(Builders<Match>.Filter.Eq(x => x.Info.GameId, gameId));
+                var filter = Builders<Match>.Filter.Eq(x => x.GameId, gameId);
+                var match = await MongoDbMatch.FindOneAsync(filter);
                 if (match != null)
                 {
                     return;
@@ -310,15 +311,15 @@ namespace LolCrawler.Api
                         continue;
                     }
 
-                    matches.Add(await MongoDbMatch.UpsertAsync(Builders<Match>.Filter.Eq(x => x.Info.GameId, gameId),
-                        matchData.ConvertTo<Match, MingweiSamuel.Camille.MatchV5.Match>(),
-                        (match) =>
-                        {
-                            if (match.Info.GameId == gameId)
+                    if (matchData.Info.GameId == gameId)
+                    {
+                        matches.Add(await MongoDbMatch.UpsertAsync(filter,
+                            MapperUtil.Map<Match>(matchData),
+                            (match) =>
                             {
                                 action?.Invoke(match);
-                            }
-                        }));
+                            }));
+                    }
                 }
             }
             catch (Exception ex)

@@ -148,7 +148,7 @@ namespace Server.Services
                         var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
                         if (participant == null)
                         {
-                            Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.Info.GameId}>");
+                            Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.GameId}>");
                             return;
                         }
 
@@ -158,7 +158,7 @@ namespace Server.Services
 
                 if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
                 {
-                    await _riotApiCrawler.GetMatch(summoner, playingGame.Info.GameId, Region.Get(summoner.Region),
+                    await _riotApiCrawler.GetMatch(summoner, playingGame.GameId, Region.Get(summoner.Region),
                         async (match) =>
                         {
                             _riotApiCrawler.EndGame(summoner, playingGame);
@@ -166,14 +166,14 @@ namespace Server.Services
                             var participantIdentity = match.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
                             if (participantIdentity == null)
                             {
-                                Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
+                                Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
                                 return;
                             }
 
                             var participant = match.Info.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
                             if (participant == null)
                             {
-                                Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.Info.GameId}>");
+                                Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
                                 return;
                             }
 
