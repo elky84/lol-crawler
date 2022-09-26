@@ -98,8 +98,10 @@ namespace LolCrawler.Api
 
             await RefreshLeagueEntries(summoner.Id, region);
 
-            return await MongoDbSummoner.UpsertAsync(SummonerFilter(summonerName, region),
-                new Summoner
+            var summonerData = await MongoDbSummoner.FindOneAsync(SummonerFilter(summonerName, region));
+            if (summonerData == null)
+            {
+                summonerData = new Summoner
                 {
                     Name = summoner.Name,
                     NameLower = summoner.Name.ToLower(),
@@ -109,7 +111,18 @@ namespace LolCrawler.Api
                     Region = region.Key,
                     SummonerId = summoner.Id,
                     Tracking = tracking
-                });
+                };
+                await MongoDbSummoner.CreateAsync(summonerData);
+            }
+            else
+            {
+                summonerData.Name = summoner.Name;
+                summonerData.NameLower = summoner.Name.ToLower();
+                summonerData.Level = summoner.SummonerLevel;
+                summonerData.Tracking = tracking;
+                await MongoDbSummoner.UpdateAsync(summonerData.Id, summonerData);
+            }
+            return summonerData;
         }
 
         public async Task<Summoner> CreateSummerByName(string summonerName, Region region, bool tracking)
@@ -294,33 +307,19 @@ namespace LolCrawler.Api
                 var filter = Builders<Match>.Filter.Eq(x => x.GameId, gameId);
                 var match = await MongoDbMatch.FindOneAsync(filter);
                 if (match != null)
-                {
                     return;
-                }
 
                 var matchRegion = MatchRegion.FromRegion(region);
-                var matchIds = await RiotApi.MatchV5.GetMatchIdsByPUUIDAsync(matchRegion, summoner.Puuid);
-                List<Match> matches = new();
-                foreach (var matchId in matchIds)
-                {
-                    // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
-                    var matchData = await RiotApi.MatchV5.GetMatchAsync(matchRegion, matchId);
-                    if (matchData == null)
-                    {
-                        Log.Logger.Error($"Not found MatchData. <Region:{matchRegion}> <MatchId:{matchId}>");
-                        continue;
-                    }
+                var matchData = await RiotApi.MatchV5.GetMatchAsync(matchRegion, $"{region.Key}_{gameId}");
+                if (matchData == null)
+                    return;
 
-                    if (matchData.Info.GameId == gameId)
+                await MongoDbMatch.UpsertAsync(filter,
+                    MapperUtil.Map<Match>(matchData),
+                    (match) =>
                     {
-                        matches.Add(await MongoDbMatch.UpsertAsync(filter,
-                            MapperUtil.Map<Match>(matchData),
-                            (match) =>
-                            {
-                                action?.Invoke(match);
-                            }));
-                    }
-                }
+                        action?.Invoke(match);
+                    });
             }
             catch (Exception ex)
             {
