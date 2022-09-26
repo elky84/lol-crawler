@@ -1,19 +1,19 @@
-﻿using System.Threading.Tasks;
-using EzAspDotNet.Services;
+﻿using EzAspDotNet.Services;
+using EzAspDotNet.Settings;
+using EzAspDotNet.Util;
 using LolCrawler.Api;
+using LolCrawler.Models;
+using Microsoft.Extensions.Configuration;
 using MingweiSamuel.Camille.Enums;
+using MongoDB.Driver;
+using Serilog;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using EzAspDotNet.Settings;
-using System;
-using Serilog;
-using MongoDB.Driver;
-using System.Web;
 using System.Text;
-using EzAspDotNet.Util;
-using LolCrawler.Models;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Server.Services
 {
@@ -146,7 +146,7 @@ namespace Server.Services
                     async (game) =>
                     {
                         var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
-                        if(participant == null)
+                        if (participant == null)
                         {
                             Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.Info.GameId}>");
                             return;

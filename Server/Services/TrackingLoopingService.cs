@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using System.Threading;
-using System;
-using EzAspDotNet.Exception;
+﻿using EzAspDotNet.Exception;
 using EzAspDotNet.Services;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Server.Services
 {
@@ -35,7 +35,7 @@ namespace Server.Services
 
         protected void DoWork()
         {
-            _ = _trackingService.ExecuteBackground();
+            _trackingService.ExecuteBackground().Wait();
         }
     }
 }
