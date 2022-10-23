@@ -180,7 +180,11 @@ namespace LolCrawler.Api
         {
             try
             {
+                if (MapperUtil.Mapper == null)
+                    return null;
+
                 var leagueEntriesOrigin = await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId);
+
                 var leagueEntires = leagueEntriesOrigin
                     .Select(x => MapperUtil.Map<LeagueEntry>(x))
                     .ToList();

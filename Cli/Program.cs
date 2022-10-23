@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using LolCrawler.Api;
+﻿using LolCrawler.Api;
 using LolCrawler.Code;
 using MingweiSamuel.Camille.Enums;
 using MingweiSamuel.Camille.MatchV5;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Serilog;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Cli
 {
@@ -44,10 +43,10 @@ namespace Cli
             }
 
             var currentGame = await riot.GetCurrentGame(summoner);
-            if (null == currentGame)
+            if (null != currentGame)
             {
                 // If a summoner is not found, the response will be null.
-                Log.Logger.Information($"Summoner '{summonerName}' currentGame not found.");
+                Log.Logger.Information($"Summoner '{summonerName}' currentGame State: {currentGame.Info}");
                 return;
             }
 
