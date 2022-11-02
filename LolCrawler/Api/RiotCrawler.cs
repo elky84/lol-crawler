@@ -75,6 +75,12 @@ namespace LolCrawler.Api
                     Builders<Summoner>.Filter.Eq(x => x.Region, region.Key);
         }
 
+        private static FilterDefinition<Summoner> SummonerIdFilter(string summonerId, Region region)
+        {
+            return Builders<Summoner>.Filter.Eq(x => x.SummonerId, summonerId) &
+                    Builders<Summoner>.Filter.Eq(x => x.Region, region.Key);
+        }
+
         public async Task<Summoner> GetSummerByName(string summonerName, Region region)
         {
             try
@@ -97,8 +103,26 @@ namespace LolCrawler.Api
             }
 
             await RefreshLeagueEntries(summoner.Id, region);
+            return await SummonerUpsert(await MongoDbSummoner.FindOneAsync(SummonerFilter(summonerName, region)),
+                summoner, region, tracking);
+        }
 
-            var summonerData = await MongoDbSummoner.FindOneAsync(SummonerFilter(summonerName, region));
+        public async Task<Summoner> RefreshSummonerById(string summonerId, Region region, bool tracking)
+        {
+            var summoner = await RiotApi.SummonerV4.GetBySummonerIdAsync(region, summonerId);
+            if (summoner == null)
+            {
+                return null;
+            }
+
+            await RefreshLeagueEntries(summoner.Id, region);
+            return await SummonerUpsert(await MongoDbSummoner.FindOneAsync(SummonerIdFilter(summonerId, region)),
+                summoner, region, tracking);
+        }
+
+        private async Task<Summoner> SummonerUpsert(Summoner summonerData,
+            MingweiSamuel.Camille.SummonerV4.Summoner summoner, Region region, bool tracking)
+        {
             if (summonerData == null)
             {
                 summonerData = new Summoner

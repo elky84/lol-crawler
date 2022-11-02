@@ -54,12 +54,7 @@ namespace Server.Services
             CurrentGame game,
             MingweiSamuel.Camille.MatchV5.Participant participant)
         {
-            var summonerDetail = await _summonerService.Refresh(new Protocols.Request.Summoner
-            {
-                SummonerName = summoner.Name,
-                Switch = summoner.Tracking,
-                Region = summoner.Region
-            });
+            var summonerDetail = await _summonerService.Refresh(summoner);
 
             var championImageUrl = $"http://ddragon.leagueoflegends.com/cdn/img/champion/splash/{champion.ChampionId}_0.jpg";
             var webHook = new EzAspDotNet.Notification.Data.WebHook

@@ -3,6 +3,7 @@ using EzAspDotNet.Models;
 using EzAspDotNet.Services;
 using EzAspDotNet.Settings;
 using LolCrawler.Api;
+using LolCrawler.Models;
 using Microsoft.Extensions.Configuration;
 using MingweiSamuel.Camille.Enums;
 using System.Collections.Generic;
@@ -68,12 +69,28 @@ namespace Server.Services
                 throw new DeveloperException(Code.ResultCode.NotFoundSummoner);
             }
 
-            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(data);
+            return await RefreshAndResponse(data);
+        }
+
+        public async Task<Protocols.Response.Summoner> Refresh(Summoner summoner)
+        {
+            var data = await _riotApiCrawler.RefreshSummonerById(summoner.SummonerId, Region.Get(summoner.Region), summoner.Tracking);
+            if (data == null)
+            {
+                throw new DeveloperException(Code.ResultCode.NotFoundSummoner);
+            }
+
+            return await RefreshAndResponse(data);
+        }
+
+        private async Task<Protocols.Response.Summoner> RefreshAndResponse(Summoner summoner)
+        {
+            var leagueEntries = await _riotApiCrawler.RefreshLeagueEntries(summoner);
             return new Protocols.Response.Summoner
             {
                 ResultCode = EzAspDotNet.Protocols.Code.ResultCode.Success,
-                Data = MapperUtil.Map<Protocols.Common.Summoner>(data),
-                LeagueEntries = MapperUtil.Map<List<LolCrawler.Models.LeagueEntry>,
+                Data = MapperUtil.Map<Protocols.Common.Summoner>(summoner),
+                LeagueEntries = MapperUtil.Map<List<LeagueEntry>,
                                List<Protocols.Common.LeagueEntry>>
                                (leagueEntries)
             };
