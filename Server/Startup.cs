@@ -42,6 +42,9 @@ namespace Server
                     cfg.CreateMap<EzAspDotNet.Notification.Models.Notification, Protocols.Common.Notification>(MemberList.None);
                     cfg.CreateMap<Protocols.Common.Notification, EzAspDotNet.Notification.Models.Notification>(MemberList.None);
 
+                    cfg.CreateMap<Protocols.Common.NotificationCreate, EzAspDotNet.Notification.Models.Notification>(MemberList.None)
+                        .ForMember(d => d.Created, o => o.MapFrom(s => DateTime.Now));
+
                     cfg.CreateMap<LolCrawler.Models.Summoner, Protocols.Common.Summoner>(MemberList.None);
                     cfg.CreateMap<Protocols.Common.Summoner, LolCrawler.Models.Summoner>(MemberList.None);
 
