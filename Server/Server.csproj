@@ -12,6 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Include="serilog.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+	
+  <ItemGroup>
     <ProjectReference Include="..\LolCrawler\LolCrawler.csproj" />
   </ItemGroup>
 
