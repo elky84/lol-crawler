@@ -1,5 +1,4 @@
 ﻿using EzAspDotNet.Services;
-using EzAspDotNet.Settings;
 using EzAspDotNet.Util;
 using LolCrawler.Api;
 using LolCrawler.Models;
@@ -36,7 +35,7 @@ namespace Server.Services
             IHttpClientFactory httpClientFactory)
         {
             _summonerService = summonerService;
-            _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
+            _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(Environment.GetEnvironmentVariable("RIOT_API_KEY"));
             _webHookService = webHookService;
         }
 

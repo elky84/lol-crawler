@@ -18,19 +18,23 @@
 
 ## 설명
 
-* C# .NET 5, ASP.NET CORE 3로 개발된 LOL Crawler 입니다.
+* C# .NET 6, ASP.NET CORE 6로 개발된 LOL Crawler 입니다.
 * 현재는 등록된 유저를 추적해 Discord or Slack으로 WebHook을 날려서 알려주는 기능이 주요 기능입니다.
 * DB로는 mongoDB를 사용합니다.
-* https://github.com/MingweiSamuel/Camille 프로젝트를 기반으로 많이 활용했습니다.
+* Riot LOL 전적 조회 기능으로는 <https://github.com/MingweiSamuel/Camille> 프로젝트를 많이 활용했습니다.
 
 ## 사용법
 
-* Cli 테스트시 `Config.json.sample` -> `Config.json` 으로 변경하시고 `라이엇 API Key`를 입력하셔야 합니다.
-* Server 가동시 `appsettings.Development.json`, `appsettings.Production.json` 파일을 sample 파일을 참고해서 생성하시고 RiotApiKey 부분에 `라이엇 API 키`를 입력하셔야 합니다.
-* localhost에 mongodb를 구축하지 않으셨다면, `appsetting.[환경].json`에서 `ConnectionString` 부분을 수정하세요.
+* Cli 프로젝트, Server 프로젝트
+  * `RIOT_API_KEY` 환경 변수에 `라이엇 API 키 입력`
+* MongoDB 설정 (Server 프로젝트)
+  * `MONGODB_CONNECTION` 환경 변수에 `MONGODB 커넥션 문자열` 입력
+* 선택적 MongoDB 데이터베이스
+  * 기본 값은 `lol-crawler`
+  * `MONGODB_DATABASE` 환경 변수 사용시 override
+* 환경 변수 미사용시, appSettings.[환경].json 파일에 있는 값을 사용합니다. (환경에 맞는 파일 미제공시, appSettings.json 의 값을 그대로 이용)
 
 ![lol-crawler](./lol-crawler.png)
-
 
 ## 각종 API 예시
 * VS Code의 RestClient Plugin의 .http 파일용으로 작성

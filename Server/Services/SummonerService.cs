@@ -1,11 +1,11 @@
 ﻿using EzAspDotNet.Exception;
 using EzAspDotNet.Models;
 using EzAspDotNet.Services;
-using EzAspDotNet.Settings;
 using LolCrawler.Api;
 using LolCrawler.Models;
 using Microsoft.Extensions.Configuration;
 using MingweiSamuel.Camille.Enums;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace Server.Services
             MongoDbService mongoDbService,
             IHttpClientFactory httpClientFactory)
         {
-            _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(configuration.GetRiotApiCrawlerSettings().RiotApiKey);
+            _riotApiCrawler = new RiotCrawler(mongoDbService.Database, httpClientFactory.CreateClient()).Create(Environment.GetEnvironmentVariable("RIOT_API_KEY"));
         }
 
         public async Task<Protocols.Response.Summoner> Get(Protocols.Request.Summoner summoner)

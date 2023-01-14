@@ -5,6 +5,7 @@ using MingweiSamuel.Camille.MatchV5;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -30,9 +31,14 @@ namespace Cli
             var client = new MongoClient("mongodb://localhost:27017/?maxPoolSize=200");
             var database = client.GetDatabase("cli-lol-crawler");
 
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("config.json"));
+            var riotApiKey = Environment.GetEnvironmentVariable("RIOT_API_KEY");
+            if (string.IsNullOrEmpty(riotApiKey))
+            {
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("config.json"));
+                riotApiKey = dict["RiotApiKey"];
+            }
 
-            var riot = new RiotCrawler(database, new HttpClient()).Create(dict["RiotApiKey"]);
+            var riot = new RiotCrawler(database, new HttpClient()).Create(riotApiKey);
             var summonerName = "elky";
             var summoner = await riot.CreateSummerByName(summonerName, Region.KR, true);
             if (null == summoner)
