@@ -52,8 +52,7 @@ namespace Server.Services
         {
             try
             {
-                return await _mongoDbNotification.UpsertAsync(Builders<Notification>.Filter.Eq(x => x.CrawlingType, notification.CrawlingType),
-                    MapperUtil.Map<Notification>(notification));
+                return await _mongoDbNotification.CreateAsync(MapperUtil.Map<Notification>(notification));
             }
             catch (MongoWriteException)
             {
