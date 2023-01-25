@@ -287,6 +287,12 @@ namespace LolCrawler.Api
                     return null;
                 }
 
+                // 사용자 정의 게임은 종료 처리가 기록되지 않는다. lol-crawler는 결과 전달을 위해 진행 상태인 게임을 추적하므로 이러한 게임 타입을 필터링한다.
+                if (currentGame.GameType == "CUSTOM_GAME")
+                {
+                    return null;
+                }
+
                 var origin = await MongoDbCurrentGame.FindOneAsync(Builders<CurrentGame>.Filter.Eq(x => x.GameId, currentGame.GameId));
                 if (origin != null)
                 {
