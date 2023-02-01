@@ -59,6 +59,8 @@ namespace Server
 
                     cfg.CreateMap<MingweiSamuel.Camille.LeagueV4.LeagueEntry, LolCrawler.Models.LeagueEntry>(MemberList.None);
 
+                    cfg.CreateMap<MingweiSamuel.Camille.LeagueV4.MiniSeries, LolCrawler.Models.MiniSeries>(MemberList.None);
+
                     cfg.CreateMap<MingweiSamuel.Camille.MatchV5.Match, LolCrawler.Models.Match>(MemberList.None)
                         .ForMember(d => d.GameId, o => o.MapFrom(s => s.Info.GameId));
                 })

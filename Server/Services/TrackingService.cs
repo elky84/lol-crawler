@@ -134,25 +134,28 @@ namespace Server.Services
 
             OldDate = DateTime.Now;
 
-            foreach (var g in (await _riotApiCrawler.GetTrackingSummoners()).GroupBy(x => x.TrackingGameId))
+
+            var trackingSummoners = await _riotApiCrawler.GetTrackingSummoners();
+
+            foreach (var g in trackingSummoners.GroupBy(x => x.TrackingGameId ?? trackingSummoners.IndexOf(x)))
             {
                 var repSummoner = g.First();
                 var playingGame = await _riotApiCrawler.GetCurrentGame(repSummoner,
-                    async (game) =>
+                async (game) =>
+                {
+                    foreach (var summoner in g.AsParallel())
                     {
-                        foreach (var summoner in g.AsParallel())
+                        var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == repSummoner.SummonerId);
+                        if (participant == null)
                         {
-                            var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == repSummoner.SummonerId);
-                            if (participant == null)
-                            {
-                                Log.Error($"Not found Participant. <SummonerName:{repSummoner.Name}> <SummonerId:{repSummoner.SummonerId}> <GameId:{game.GameId}>");
-                                return;
-                            }
-
-                            var champion = _champions[participant.ChampionId];
-                            await SendWebHook(repSummoner, champion, game, null);
+                            Log.Error($"Not found Participant. <SummonerName:{repSummoner.Name}> <SummonerId:{repSummoner.SummonerId}> <GameId:{game.GameId}>");
+                            return;
                         }
-                    });
+
+                        var champion = _champions[participant.ChampionId];
+                        await SendWebHook(repSummoner, champion, game, null);
+                    }
+                });
 
                 if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
                 {

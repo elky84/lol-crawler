@@ -359,3 +359,6 @@ deploy_*.bat
 # vscode rest client
 http/.vscode/settings.json
 notification.http
+
+# properties
+Properties/
