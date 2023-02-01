@@ -134,46 +134,53 @@ namespace Server.Services
 
             OldDate = DateTime.Now;
 
-            foreach (var summoner in await _riotApiCrawler.GetTrackingSummoners())
+            foreach (var g in (await _riotApiCrawler.GetTrackingSummoners()).GroupBy(x => x.TrackingGameId))
             {
-                var playingGame = await _riotApiCrawler.GetCurrentGame(summoner,
+                var repSummoner = g.First();
+                var playingGame = await _riotApiCrawler.GetCurrentGame(repSummoner,
                     async (game) =>
                     {
-                        var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
-                        if (participant == null)
+                        foreach (var summoner in g.AsParallel())
                         {
-                            Log.Error($"Not found Participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{game.GameId}>");
-                            return;
-                        }
-
-                        var champion = _champions[participant.ChampionId];
-                        await SendWebHook(summoner, champion, game, null);
-                    });
-
-                if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
-                {
-                    await _riotApiCrawler.GetMatch(summoner, playingGame.GameId, Region.Get(summoner.Region),
-                        async (match) =>
-                        {
-                            _riotApiCrawler.EndGame(summoner, playingGame);
-
-                            var participantIdentity = match.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
-                            if (participantIdentity == null)
-                            {
-                                Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
-                                return;
-                            }
-
-                            var participant = match.Info.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
+                            var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == repSummoner.SummonerId);
                             if (participant == null)
                             {
-                                Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                Log.Error($"Not found Participant. <SummonerName:{repSummoner.Name}> <SummonerId:{repSummoner.SummonerId}> <GameId:{game.GameId}>");
                                 return;
                             }
 
                             var champion = _champions[participant.ChampionId];
+                            await SendWebHook(repSummoner, champion, game, null);
+                        }
+                    });
 
-                            await SendWebHook(summoner, champion, playingGame, participant);
+                if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
+                {
+                    await _riotApiCrawler.GetMatch(repSummoner, playingGame.GameId, Region.Get(repSummoner.Region),
+                        async (match) =>
+                        {
+                            foreach (var summoner in g.AsParallel())
+                            {
+                                _riotApiCrawler.EndGame(summoner, playingGame);
+
+                                var participantIdentity = match.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
+                                if (participantIdentity == null)
+                                {
+                                    Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                    return;
+                                }
+
+                                var participant = match.Info.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
+                                if (participant == null)
+                                {
+                                    Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                    return;
+                                }
+
+                                var champion = _champions[participant.ChampionId];
+
+                                await SendWebHook(summoner, champion, playingGame, participant);
+                            }
                         });
                 }
             }
