@@ -8,17 +8,18 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Cli
 {
-    class Program
+    internal static class Program
     {
-        static async Task Main(string[] args)
+        private static async Task Main(string[] args)
         {
-            EncodingProvider provider = CodePagesEncodingProvider.Instance;
+            var provider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(provider);
 
             Log.Logger = new LoggerConfiguration()
@@ -34,12 +35,12 @@ namespace Cli
             var riotApiKey = Environment.GetEnvironmentVariable("RIOT_API_KEY");
             if (string.IsNullOrEmpty(riotApiKey))
             {
-                var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("config.json"));
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(await File.ReadAllTextAsync("config.json"));
                 riotApiKey = dict["RiotApiKey"];
             }
 
             var riot = new RiotCrawler(database, new HttpClient()).Create(riotApiKey);
-            var summonerName = "elky";
+            const string summonerName = "elky";
             var summoner = await riot.CreateSummerByName(summonerName, Region.KR, true);
             if (null == summoner)
             {
@@ -51,25 +52,22 @@ namespace Cli
             var currentGame = await riot.GetCurrentGame(summoner);
             if (null != currentGame)
             {
-                // If a summoner is not found, the response will be null.
-                Log.Logger.Information($"Summoner '{summonerName}' currentGame State: {currentGame.Info}");
-                return;
+                Log.Logger.Information("<Summoner:{SummonerName}> <currentGameState:{CurrentGameInfo}>", 
+                    summonerName, currentGame.Info);
             }
 
             var matchIds = await riot.RiotApi.MatchV5.GetMatchIdsByPUUIDAsync(MatchRegion.FromRegion(Region.KR), summoner.Puuid);
             // Queue ID 420 is RANKED_SOLO_5v5 (TODO)
             // Queue 참고 https://static.developer.riotgames.com/docs/lol/queues.json
-            List<Match> matches = new();
-            foreach (var matchId in matchIds)
+            var matches = matchIds?.Select(async matchId =>
+                    await riot.RiotApi.MatchV5.GetMatchAsync(MatchRegion.FromRegion(Region.KR), matchId)
+                ).Where(x => x != null)
+                .Select(x => x.Result)
+                .ToList() ?? new List<Match>();
+            
+            foreach (var match in matches)
             {
-                // 현재 게임에 대한 matchMetadata가 있으면 디스코드 알림하고, 현재 게임 정보 상태를 바꾸고, 폴링 대상에서 제거
-                var matchData = await riot.RiotApi.MatchV5.GetMatchAsync(MatchRegion.FromRegion(Region.KR), matchId);
-                if (matchData == null)
-                {
-                    continue;
-                }
-
-                matches.Add(matchData);
+                Log.Logger.Information("Match {InfoGameId}", match.Info.GameId);
             }
 
             //// 추가로 DB에 저장할 데이터

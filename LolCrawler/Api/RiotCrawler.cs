@@ -350,17 +350,15 @@ namespace LolCrawler.Api
 
                 await MongoDbMatch.UpsertAsync(filter,
                     MapperUtil.Map<Match>(matchData),
-                    (match) =>
+                    (newMatch) =>
                     {
-                        action?.Invoke(match);
+                        action?.Invoke(newMatch);
                     });
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex.Message);
-                return;
             }
-
         }
 
 
