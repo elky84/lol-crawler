@@ -1,5 +1,5 @@
 [![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg?label=elky-essay)](https://elky84.github.io)
-![Made with](https://img.shields.io/badge/made%20with-.NET6-brightgreen.svg)
+![Made with](https://img.shields.io/badge/made%20with-.NET7-brightgreen.svg)
 ![Made with](https://img.shields.io/badge/made%20with-JavaScript-blue.svg)
 ![Made with](https://img.shields.io/badge/made%20with-MongoDB-red.svg)
 
@@ -18,7 +18,7 @@
 
 ## 설명
 
-* C# .NET 6, ASP.NET CORE 6로 개발된 LOL Crawler 입니다.
+* C# .NET 7, ASP.NET CORE 6로 개발된 LOL Crawler 입니다.
 * 현재는 등록된 유저를 추적해 Discord or Slack으로 WebHook을 날려서 알려주는 기능이 주요 기능입니다.
 * DB로는 mongoDB를 사용합니다.
 * Riot LOL 전적 조회 기능으로는 <https://github.com/MingweiSamuel/Camille> 프로젝트를 많이 활용했습니다.
