@@ -33,15 +33,15 @@ namespace Server.Controllers
         }
 
         [HttpPost]
-        public async Task<Protocols.Response.Notification> Create([FromBody] Protocols.Request.NotificationCreate notificaion)
+        public async Task<Protocols.Response.Notification> Create([FromBody] Protocols.Request.NotificationCreate notification)
         {
-            return await _notificationService.Create(notificaion);
+            return await _notificationService.Create(notification);
         }
 
         [HttpPost("Multi")]
-        public async Task<Protocols.Response.NotificationMulti> CreateMulti([FromBody] Protocols.Request.NotificationMulti notificaionMulti)
+        public async Task<Protocols.Response.NotificationMulti> CreateMulti([FromBody] Protocols.Request.NotificationMulti notificationMulti)
         {
-            return await _notificationService.CreateMulti(notificaionMulti);
+            return await _notificationService.CreateMulti(notificationMulti);
         }
 
 
@@ -52,9 +52,9 @@ namespace Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<Protocols.Response.Notification> Update(string id, [FromBody] Protocols.Request.NotificationUpdate notificaion)
+        public async Task<Protocols.Response.Notification> Update(string id, [FromBody] Protocols.Request.NotificationUpdate notification)
         {
-            return await _notificationService.Update(id, notificaion);
+            return await _notificationService.Update(id, notification);
         }
 
         [HttpDelete("{id}")]

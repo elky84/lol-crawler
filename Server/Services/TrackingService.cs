@@ -26,7 +26,7 @@ namespace Server.Services
 
         private Dictionary<long, LolCrawler.Models.Champion> _champions = new Dictionary<long, LolCrawler.Models.Champion>();
 
-        private DateTime OldDate;
+        private DateTime _oldDate;
 
         public TrackingService(IConfiguration configuration,
             SummonerService summonerService,
@@ -120,7 +120,7 @@ namespace Server.Services
                 webHook.Fields.Add(new EzAspDotNet.Notification.Data.Field
                 {
                     Title = $"승{leagueEntry.Wins} 패{leagueEntry.Losses} - 승률",
-                    Value = $"{(double)leagueEntry.Wins / ((double)leagueEntry.Wins + (double)leagueEntry.Losses) * 100.0}%"
+                    Value = $"{leagueEntry.Wins / (leagueEntry.Wins + (double)leagueEntry.Losses) * 100.0}%"
                 });
             }
 
@@ -129,10 +129,10 @@ namespace Server.Services
 
         public async Task ExecuteBackground()
         {
-            if (OldDate.Date != DateTime.Now.Date)
+            if (_oldDate.Date != DateTime.Now.Date)
                 await LoadChampions();
 
-            OldDate = DateTime.Now;
+            _oldDate = DateTime.Now;
 
 
             var trackingSummoners = await _riotApiCrawler.GetTrackingSummoners();
@@ -148,7 +148,7 @@ namespace Server.Services
                         var participant = game.Info.Participants.FirstOrDefault(x => x.SummonerId == repSummoner.SummonerId);
                         if (participant == null)
                         {
-                            Log.Error($"Not found Participant. <SummonerName:{repSummoner.Name}> <SummonerId:{repSummoner.SummonerId}> <GameId:{game.GameId}>");
+                            Log.Error("Not found Participant. <SummonerName:{RepSummonerName}> <SummonerId:{RepSummonerSummonerId}> <GameId:{GameGameId}>", repSummoner.Name, repSummoner.SummonerId, game.GameId);
                             return;
                         }
 
@@ -157,7 +157,7 @@ namespace Server.Services
                     }
                 });
 
-                if (playingGame != null && playingGame.GameState == LolCrawler.Code.GameState.Playing)
+                if (playingGame is { GameState: LolCrawler.Code.GameState.Playing })
                 {
                     await _riotApiCrawler.GetMatch(repSummoner, playingGame.GameId, Region.Get(repSummoner.Region),
                         async (match) =>
@@ -169,14 +169,16 @@ namespace Server.Services
                                 var participantIdentity = match.Info.Participants.FirstOrDefault(x => x.SummonerId == summoner.SummonerId);
                                 if (participantIdentity == null)
                                 {
-                                    Log.Error($"Not found participantIdentity. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                    Log.Error("Not found participantIdentity. <SummonerName:{SummonerName}> <SummonerId:{SummonerSummonerId}> <GameId:{MatchGameId}>", summoner.Name, summoner.SummonerId, match.GameId);
                                     return;
                                 }
 
                                 var participant = match.Info.Participants.FirstOrDefault(x => x.ParticipantId == participantIdentity.ParticipantId);
                                 if (participant == null)
                                 {
-                                    Log.Error($"Not found participant. <SummonerName:{summoner.Name}> <SummonerId:{summoner.SummonerId}> <GameId:{match.GameId}>");
+                                    Log.Error(
+                                        "Not found participant. <SummonerName:{SummonerName}> <SummonerId:{SummonerSummonerId}> <GameId:{MatchGameId}>",
+                                        summoner.Name, summoner.SummonerId, match.GameId);
                                     return;
                                 }
 

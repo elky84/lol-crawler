@@ -83,7 +83,6 @@ namespace Server.Services
             }
             return new Protocols.Response.Notification
             {
-                ResultCode = ResultCode.Success,
                 Data = MapperUtil.Map<Protocols.Common.Notification>(notification),
             };
         }
@@ -101,7 +100,6 @@ namespace Server.Services
 
             return new Protocols.Response.Notification
             {
-                ResultCode = ResultCode.Success,
                 Data = MapperUtil.Map<Protocols.Common.Notification>(updated),
             };
         }
@@ -115,7 +113,6 @@ namespace Server.Services
             }
             return new Protocols.Response.Notification
             {
-                ResultCode = ResultCode.Success,
                 Data = MapperUtil.Map<Protocols.Common.Notification>(deleted),
             };
         }

@@ -6,6 +6,7 @@ using EzAspDotNet.Models;
 
 namespace LolCrawler.Models
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class ChampionStats
     {
         public double Armor { get; set; }

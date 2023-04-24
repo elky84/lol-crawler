@@ -33,7 +33,7 @@ namespace Server.Services
         }
 
 
-        protected void DoWork()
+        private void DoWork()
         {
             _trackingService.ExecuteBackground().Wait();
         }

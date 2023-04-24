@@ -91,7 +91,7 @@ namespace Server
 
             services.AddSingleton<SummonerService>();
 
-            Log.Logger.Information($"Local TimeZone:{TimeZoneInfo.Local}");
+            Log.Logger.Information("Local TimeZone:{Local}", TimeZoneInfo.Local);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

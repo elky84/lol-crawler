@@ -18,9 +18,7 @@ namespace LolCrawler.Models
         public ChampionImage Image { get; set; }
 
         public List<string> Tags { get; set; }
-
-        public string Partype { get; set; }
-
+        
         public long Key { get; set; }
 
         public string Lore { get; set; }

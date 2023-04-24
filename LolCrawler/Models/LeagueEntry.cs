@@ -19,6 +19,8 @@ namespace LolCrawler.Models
         public string SummonerId { get; set; }
         public string LeagueId { get; set; }
         public string Rank { get; set; }
+        
+        // ReSharper disable once InconsistentNaming
         public Dictionary<string, object> _AdditionalProperties { get; set; }
     }
 }

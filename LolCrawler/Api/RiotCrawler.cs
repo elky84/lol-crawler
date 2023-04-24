@@ -21,7 +21,7 @@ namespace LolCrawler.Api
     {
         public string ApiKey { get; set; }
 
-        public RiotApi RiotApi { get; set; }
+        public RiotApi RiotApi { get; private set; }
 
         private MongoDbUtil<Summoner> MongoDbSummoner { get; set; }
 
@@ -89,7 +89,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -163,7 +163,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -200,7 +200,7 @@ namespace LolCrawler.Api
             return await RefreshLeagueEntries(summoner.SummonerId, Region.Get(summoner.Region));
         }
 
-        public async Task<List<LeagueEntry>> RefreshLeagueEntries(string summonerId, Region region)
+        private async Task<List<LeagueEntry>> RefreshLeagueEntries(string summonerId, Region region)
         {
             try
             {
@@ -209,21 +209,24 @@ namespace LolCrawler.Api
 
                 var leagueEntriesOrigin = await RiotApi.LeagueV4.GetLeagueEntriesForSummonerAsync(region, summonerId);
 
-                var leagueEntires = leagueEntriesOrigin
-                    .Select(x => MapperUtil.Map<LeagueEntry>(x))
+                if (leagueEntriesOrigin == null)
+                    return null;
+
+                var leagueEntries = leagueEntriesOrigin
+                    .Select(MapperUtil.Map<LeagueEntry>)
                     .ToList();
 
-                foreach (var leagueEntry in leagueEntires)
+                foreach (var leagueEntry in leagueEntries)
                 {
                     await MongoDbLeagueEntry.UpsertAsync(Builders<LeagueEntry>.Filter.Eq(x => x.SummonerId, leagueEntry.SummonerId) &
-                        Builders<LeagueEntry>.Filter.Eq(x => x.QueueType, leagueEntry.QueueType), leagueEntry);
+                                                         Builders<LeagueEntry>.Filter.Eq(x => x.QueueType, leagueEntry.QueueType), leagueEntry);
                 }
 
-                return leagueEntires;
+                return leagueEntries;
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -244,7 +247,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -257,7 +260,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -311,7 +314,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -328,7 +331,7 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
         }
@@ -357,10 +360,9 @@ namespace LolCrawler.Api
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
             }
         }
-
 
         public async Task<List<Models.Champion>> GetChampions(Region region)
         {
@@ -373,6 +375,8 @@ namespace LolCrawler.Api
 
                 var version = (await HttpClient.Request<List<string>>(HttpMethod.Get, "https://ddragon.leagueoflegends.com/api/versions.json")).FirstOrDefault();
 
+                if (cultureInfo == null) return null;
+
                 var cultureCode = cultureInfo.Name.Replace("-", "_");
 
                 var championList = await HttpClient.Request<ChampionList>(HttpMethod.Get, $"http://ddragon.leagueoflegends.com/cdn/{version}/data/{cultureCode}/champion.json");
@@ -380,22 +384,18 @@ namespace LolCrawler.Api
                 var originChampions = (await MongoDbChampion.All()).ToDictionary(x => x.ChampionId);
 
                 var champions = championList.Data.Values.ToList();
-                foreach (var champion in champions)
+                foreach (var champion in champions.Where(champion => !originChampions.ContainsKey(champion.ChampionId)))
                 {
-                    if (!originChampions.ContainsKey(champion.ChampionId))
-                    {
-                        await MongoDbChampion.UpsertAsync(Builders<Models.Champion>.Filter.Eq(x => x.ChampionId, champion.ChampionId), champion);
-                    }
+                    await MongoDbChampion.UpsertAsync(Builders<Models.Champion>.Filter.Eq(x => x.ChampionId, champion.ChampionId), champion);
                 }
 
                 return champions;
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                Log.Logger.Error("<Exception:{ExMessage}>", ex.Message);
                 return null;
             }
-
         }
     }
 }

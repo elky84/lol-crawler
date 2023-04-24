@@ -1,5 +1,6 @@
 ﻿namespace LolCrawler.Models
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class ChampionImage
     {
         public string Full { get; set; }
