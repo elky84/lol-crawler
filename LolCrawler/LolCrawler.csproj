@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EzAspDotnet" Version="1.0.63" />
+		<PackageReference Include="EzAspDotnet" Version="1.0.65" />
 		<PackageReference Include="MingweiSamuel.Camille" Version="2.9.1-nightly-2022-06-03-b5cf263949" />
 	</ItemGroup>
 </Project>
